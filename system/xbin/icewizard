@@ -295,7 +295,7 @@ while [ "$choice" != "q" ]
   	echo -e "${B}3) Config 3${N}"
   	echo -e "${B}x) Return to Menu${N}"
   	echo -e "${B}q) Quit${N}"
-  	echo -e -n '${R}[CHOOSE] :  ${N}'
+  	echo -e -n "${R}[CHOOSE] :  ${N}"
 
 read -r choice
 
@@ -367,7 +367,7 @@ while [ "$choice" != "q" ];
     echo -e "${B}12) Stock${N}"
     echo -e "${B}r) Return to Menu${N}"
     echo -e "${B}q) Quit${N}"
-    echo -e -n '${R}[CHOOSE] :  ${N}'
+    echo -e -n "${R}[CHOOSE] :  ${N}"
 
 read -r choice
 
@@ -418,7 +418,7 @@ read -r choice
            sed -ri "s/Preset [^)]+\)/Preset (MUSIC)/" $MODPROP
            cp -rf $MUS $MODPATH/system/etc
            set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
-           kill_all_command$
+           kill_all_command
            break
            ;;
       '7') echo "${G}Outdoors selected...${N}"
@@ -493,7 +493,7 @@ while [ "$choice" != "q" ]
     echo -e "${B}r) Reboot${N}"
     echo -e "${B}x) Return to Menu${N}"
     echo -e "${B}q) Quit${N}"
-    echo -e -n '${R}[CHOOSE] :  ${N}'
+    echo -e -n "${R}[CHOOSE] :  ${N}"
 
 read -r choice
 
@@ -540,7 +540,7 @@ kill_all_command() {
 			am force-stop $i
 		fi
 	done
-	
+
 	sleep 1
   echo "${B}   Stopping AudioServer...${N}"
     stop audioserver
@@ -554,7 +554,7 @@ kill_all_command() {
     sleep 2
   echo "${B}   Starting AudioServer...${N}"
     start audioserver
-    sleep 6 
+    sleep 6
 	ProgressBar 3 3
 	echo ""
 	echo "${B}   All Backgrounds Services Have Been Restarted!...${N}"
@@ -567,7 +567,7 @@ choice=""
 while [ "$choice" != "q" ]
   do
   	echo
-    echo "${B}FULL ICEWIZARD (UI) ONLY!!!!!${N}" 
+    echo "${B}FULL ICEWIZARD (UI) ONLY!!!!!${N}"
     echo "${B}The Following Options were the Props that were in the IceSound.prop File in Previous Versions${N}"
     echo "${B}Since These are Build.prop Props, Unfortunately Theres NO WAY to Apply These Without Rebooting${N}"
     echo "${B}Make Sure Every Thing You Have Opened is SAVED${N}"
@@ -581,13 +581,13 @@ while [ "$choice" != "q" ]
   	echo -e "${B}3) Prop Mode Off${N}"
   	echo -e "${B}x) Return to Menu${N}"
   	echo -e "${B}q) Quit${N}"
-  	echo -e -n '${R}[CHOOSE] :  ${N}'
+  	echo -e -n "${R}[CHOOSE] :  ${N}"
 
 read -r choice
 
   	case $choice in
     	1) echo "${B}Prop Mode 1 selected...${N}"
-         sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=1/' $PROP 
+         sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=1/' $PROP
          echo "${G}Device will now hot reboot${N}"
          setprop ctl.restart zygote
          break
@@ -634,7 +634,7 @@ while [ "$choice" != "q" ]
     [ -d "$MODPATH/system/app/AudioWizardView" ] && echo -e "${B}I) IceWizard Props${N}"
     echo -e "${B}L) Logs${N}"
     echo -e "${B}Q) Quit${N}"
-    echo -e -n '${R}[CHOOSE] :  ${N}'
+    echo -e -n "${R}[CHOOSE] :  ${N}"
 
 read -r choice
 
