@@ -1,0 +1,670 @@
+#!/system/bin/sh
+# Terminal Magisk Mod Template
+# by veez21 @ xda-developers
+
+
+# Magisk Module ID **
+# > ENTER MAGISK MODULE ID HERE
+ID="IceWizard"
+
+# Set Prop Directory
+MAGISK=<MAGISK>
+PROP=<PROP>
+MODPROP=<MODPROP>
+MODPATH=<MODPATH>
+ROOT=<ROOT>
+$MAGISK && [ ! -f $PROP ] && PROP=/sbin/.core/img/aml/system.prop
+[ -f $MODPROP ] || { echo "Module not detected!"; exit 1; }
+
+#=========================== Remount system as rw if needbe
+$MAGISK || mount -o rw,remount $ROOT/system
+
+#=========================== Check root
+_name=$0; _name=${_name##*/}
+id | grep -q root
+[ $? -ne 0 ] && { echo "$ID needs to be in a root shell!"; echo "type 'su' then '$_name'"; quit 1; }
+
+#=========================== Set Log Files
+mount -o remount,rw /cache 2>/dev/null
+mount -o rw,remount /cache 2>/dev/null
+# > Logs should go in this file
+LOG=/cache/${ID}.log
+oldLOG=/cache/${ID}-old.log
+# > Verbose output goes here
+VERLOG=/cache/${ID}-verbose.log
+oldVERLOG=/cache/${ID}-verbose-old.log
+
+#=========================== Start Logging verbosely
+mv -f $VERLOG $oldVERLOG 2>/dev/null; mv -f $LOG $oldLOG 2>/dev/null
+set -x 2>$VERLOG
+
+#=========================== Set Busybox (Used by Magisk) up
+# > Do not touch!
+set_busybox() {
+  if [ -x "$1" ]; then
+    for i in $(${1} --list); do
+      if [ "$i" != 'echo' ]; then
+        alias "$i"="${1} $i" 2>>$LOG >>$LOG
+      fi
+    done
+    _busybox=true
+    _bb=$1
+  fi
+}
+_busybox=false
+if [ -d /sbin/.core/busybox ]; then
+  PATH=$PATH:/sbin/.core/busybox
+  _bb=/sbin/.core/busybox/busybox
+  _busybox=true
+elif [ ! -x $SYSTEM/xbin/busybox ]; then
+  set_busybox /data/magisk/busybox
+  set_busybox /data/adb/magisk/busybox
+else
+  alias busybox=""
+fi
+if [ -x $SYSTEM/xbin/busybox ]; then
+  _bb=$SYSTEM/xbin/busybox
+elif [ -x $SYSTEM/bin/busybox ]; then
+  _bb=$SYSTEM/bin/busybox
+elif [ $_busybox ]; then
+  true
+else
+  echo "! Busybox not detected.."
+  echo "Please install one (@osm0sis' busybox recommended)"
+  false
+fi
+[ $? -ne 0 ] && quit $?
+alias echo='echo -e'
+[ -n "$LOGNAME" ] && alias clear='clear && echo'
+_bbname=$(busybox | head -n1)
+_bbname=${_bbname%'('*}
+BBok=true
+if [ "$_bbname" == "" ]; then
+  _bbname="BusyBox not found!"
+  BBok=false
+fi
+
+#=========================== Default Functions and Variables
+
+quit() {
+  #=========================== Remount system as ro if needbe
+  $MAGISK || mount -o ro,remount $ROOT/system
+  exit $?
+}
+
+api_level_arch_detect() {
+  API=`grep_prop ro.build.version.sdk`
+  ABI=`grep_prop ro.product.cpu.abi | cut -c-3`
+  ABI2=`grep_prop ro.product.cpu.abi2 | cut -c-3`
+  ABILONG=`grep_prop ro.product.cpu.abi`
+  ARCH=arm
+  IS64BIT=false
+  if [ "$ABI" = "x86" ]; then ARCH=x86; fi;
+  if [ "$ABI2" = "x86" ]; then ARCH=x86; fi;
+  if [ "$ABILONG" = "arm64-v8a" ]; then ARCH=arm64; IS64BIT=true; fi;
+  if [ "$ABILONG" = "x86_64" ]; then ARCH=x64; IS64BIT=true; fi;
+}
+
+grep_prop() {
+  REGEX="s/^$1=//p"
+  shift
+  FILES=$@
+  [ -z "$FILES" ] && FILES='/system/build.prop'
+  sed -n "$REGEX" $FILES 2>/dev/null | head -n 1
+}
+
+set_perm() {
+  chown $2:$3 $1 || return 1
+  chmod $4 $1 || return 1
+  [ -z $5 ] && chcon 'u:object_r:system_file:s0' $1 || chcon $5 $1 || return 1
+}
+
+# Device Info
+# BRAND MODEL DEVICE API ABI ABI2 ABILONG ARCH
+BRAND=$(getprop ro.product.brand)
+MODEL=$(getprop ro.product.model)
+DEVICE=$(getprop ro.product.device)
+ROM=$(getprop ro.build.display.id)
+api_level_arch_detect
+
+# Version Number
+VER=$(grep_prop version $MODPROP)
+# Version Code
+REL=$(grep_prop versionCode $MODPROP)
+# Author
+AUTHOR=$(grep_prop author $MODPROP)
+# Mod Name/Title
+MODTITLE=$(grep_prop name $MODPROP)
+
+# Colors
+G='\e[01;32m'		# GREEN TEXT
+R='\e[01;31m'		# RED TEXT
+Y='\e[01;33m'		# YELLOW TEXT
+B='\e[01;34m'		# BLUE TEXT
+V='\e[01;35m'		# VIOLET TEXT
+Bl='\e[01;30m'		# BLACK TEXT
+C='\e[01;36m'		# CYAN TEXT
+W='\e[01;37m'		# WHITE TEXT
+BGBL='\e[1;30;47m'	# Background W Text Bl
+N='\e[0m'			# How to use (example): echo "${G}example${N}"
+loadBar=' '			# Load UI
+# Remove colors if -nc or in ADB Shell
+[ -n "$1" -a "$1" == "-nc" ] && shift && NC=true
+[ "$NC" -o -n "$LOGNAME" ] && {
+	G=''; R=''; Y=''; B=''; V=''; Bl=''; C=''; W=''; N=''; BGBL=''; loadBar='=';
+}
+
+# Divider (based on $MODTITLE, $VER, and $REL characters)
+character_no=$(echo $MODTITLE $VER $REL | tr " " '_' | wc -c)
+div="${Bl}$(printf '%*s' "${character_no}" '' | tr " " "=")${N}"
+
+# Title Div :3
+title_div() {
+	no=$(echo $@ | wc -c)
+	extdiv=$((no-character_no))
+	echo "${W}$@${N} ${Bl}$(printf '%*s' "$extdiv" '' | tr " " "=")${N}"
+}
+
+# set_file_prop <property> <value> <prop.file>
+set_file_prop() {
+	sed -i "s/${1}=.*/${1}=${2}/g" $3
+}
+
+# https://github.com/fearside/ProgressBar
+ProgressBar() {
+# Process data
+	_progress=$(((${1}*100/${2}*100)/100))
+	_done=$(((${_progress}*4)/10))
+	_left=$((40-$_done))
+# Build progressbar string lengths
+	_done=$(printf "%${_done}s")
+	_left=$(printf "%${_left}s")
+
+# 1.2 Build progressbar strings and print the ProgressBar line
+# 1.2.1 Output example:
+# 1.2.1.1 Progress : [########################################] 100%
+printf "\rProgress : ${BGBL}|${N}${_done// /${BGBL}$loadBar${N}}${_left// / }${BGBL}|${N} ${_progress}%%"
+}
+
+# "cmd & spinner [message]"
+spinner() {
+	PID=$!
+	h=0; anim='-\|/';
+	while [ -d /proc/$PID ]; do
+		h=$(((h+1)%4))
+		sleep 0.02
+		printf "\rLoading [${anim:$h:1}]"
+	done
+}
+
+# Log files will be uploaded to termbin.com
+upload_logs() {
+	$BBok && {
+		echo -n "Testing internet connection "
+		ping -q -c 1 -W 1 google.com >/dev/null 2>/dev/null && echo "- OK" || { echo "Error"; quit 1; }
+		verUp=none; oldverUp=none; logUp=none; oldlogUp=none;
+		echo "Uploading logs"
+		[ -s $VERLOG ] && verUp=$(cat $VERLOG | nc termbin.com 9999)
+		[ -s $oldVERLOG ] && oldverUp=$(cat $oldVERLOG | nc termbin.com 9999)
+		[ -s $LOG ] && logUp=$(cat $LOG | nc termbin.com 9999)
+		[ -s $oldLOG ] && oldlogUp=$(cat $oldLOG | nc termbin.com 9999)
+		echo -n "Link: "
+		echo "$MODEL ($DEVICE) API $API\n$ROM\n$ID\n
+		O_Verbose: $oldverUp
+		Verbose:   $verUp
+
+		O_Log: $oldlogUp
+		Log:   $logUp" | nc termbin.com 9999
+	} || echo "Busybox not found!"
+	quit
+}
+
+# Heading
+mod_head() {
+	clear
+	echo "$div"
+	echo "${W}$MODTITLE $VER${N}(${Bl}$REL${N})"
+	echo "by ${W}$AUTHOR${N}"
+	echo "$div"
+	echo "${W}$_bbname${N}"
+	echo "${Bl}$_bb${N}"
+	echo "$div"
+	[ -s $LOG ] && echo "Enter ${W}logs${N} to upload logs" && echo $div
+}
+
+#=========================== Main
+# > You can start your MOD here.
+# > You can add functions, variables & etc.
+# > Rather than editing the default vars above.
+
+SDCARD=/storage/emulated/0
+BATH=$SDCARD/IceWizard/Presets/BATHSALTS/icesoundpresets.def
+DEEP=$SDCARD/IceWizard/Presets/DEEPBASS/icesoundpresets.def
+DEF=$SDCARD/IceWizard/Presets/DEFAULT/icesoundpresets.def
+HOLY=$SDCARD/IceWizard/Presets/HOLY/icesoundpresets.def
+KZY=$SDCARD/IceWizard/Presets/KRAZY/icesoundpresets.def
+MOV=$SDCARD/IceWizard/Presets/MOVIE/icesoundpresets.def
+MUS=$SDCARD/IceWizard/Presets/MUSIC2/icesoundpresets.def
+OUT=$SDCARD/IceWizard/Presets/OUTDOORS/icesoundpresets.def
+PURE=$SDCARD/IceWizard/Presets/PURE/icesoundpresets.def
+PS=$SDCARD/IceWizard/Presets/PURESTUFF/icesoundpresets.def
+SHAT=$SDCARD/IceWizard/Presets/SHAT/icesoundpresets.def
+WIDE=$SDCARD/IceWizard/Presets/WIDECLARITY/icesoundpresets.def
+STOCK=$SDCARD/IceWizard/Presets/STOCK/icesoundpresets.def
+PROP1=ro.asus.aw.mode.path=1
+PROP2=ro.asus.aw.mode.path=0
+PROP3=ro.asus.aw.mode.path=6
+CONF1=$SDCARD/IceWizard/Configs/1/icesoundconfig.def
+CONF2=$SDCARD/IceWizard/Configs/2/icesoundconfig.def
+CONF3=$SDCARD/IceWizard/Configs/3/icesoundconfig.def
+PLAYERS=(com.spotify.music com.google.android.music
+com.neutroncode.mp
+com.neutroncode.mpeval
+com.maxmpz.audioplayer
+com.pandora.android
+com.apple.android.music
+com.clearchannel.iheartradio.controller
+com.aspiro.tidal
+)
+#SPOT=com.spotify.music
+#GPM=com.google.android.music
+#NEU=com.neutroncode.mp
+#NEU2=com.neutroncode.mpeval
+#AMP=com.maxmpz.audioplayer
+#PAN=com.pandora.android
+#APPL=com.apple.android.music
+#HEAR=com.clearchannel.iheartradio.controller
+#TID=com.aspiro.tidal
+ASUS=com.asus.maxxaudio.audiowizard
+XML=data/system/packages.xml
+VEN=/system/vendor
+SYS=/system
+if [ -f $VEN/build.prop ]; then BUILDS="/system/build.prop $VEN/build.prop"; else BUILDS="/system/build.prop"; fi
+
+config_menu() {
+choice=""
+
+while [ "$choice" != "q" ]
+  do
+  	echo
+  	echo "${B}make sure to choose killall option before exiting to apply settings!${N}"
+  	echo "${B}Please choose skip config if the config you are using already works${N}"
+  	echo "${B}Please make a selection!${N}"
+  	echo -e "${B}1) Config 1${N}"
+  	echo -e "${B}2) Config 2${N}"
+  	echo -e "${B}3) Config 3${N}"
+  	echo -e "${B}x) Return to Menu${N}"
+  	echo -e "${B}q) Quit${N}"
+  	echo -e -n '${R}[CHOOSE] :  ${N}'
+
+read -r choice
+
+  	case $choice in
+    	'1') echo "${G}Config 1 selected...${N}"
+           cp -rf $CONF1 $MODPATH/system/etc
+           sed -ri "s/Config [^)]+\)/Config (1)/" $MODPROP
+           set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+    	'2') echo "${G}Config 2 selected...${N}"
+          cp -rf $CONF2 $MODPATH/system/etc
+          sed -ri "s/Config [^)]+\)/Config (2)/" $MODPROP
+          set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
+          kill_all_command
+          break
+          ;;
+    	'3') echo "${G}Config 3 selected...${N}"
+          cp -rf $CONF3 $MODPATH/system/etc
+          sed -ri "s/Config [^)]+\)/Config (3)/" $MODPROP
+          set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
+          kill_all_command
+          break
+          ;;
+		'4') echo "${G}Config 4 selected...${N}"
+         cp -rf $CONF4 $MODPATH/system/etc
+         sed -ri "s/Config [^)]+\)/Config (4)/" $MODPROP
+         set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
+         kill_all_command
+		     break
+		     ;;
+	   	x|X) echo "${C}Returning to Menu${N}"
+           menu
+           ;;
+    	q|Q) echo "${R}quiting!${N}"
+           quit
+           ;;
+    	*) echo "${Y}item not available! Try Again${N}"
+           clear
+           ;;
+  	esac
+  done
+echo "${C}Return to menu? < y | n > : ${N}"
+read -r mchoice
+[ "$mchoice" = "y" ] && menu || quit
+}
+
+presets_menu() {
+  choice=""
+
+while [ "$choice" != "q" ];
+  do
+    echo ""
+    echo "${B}Please choose a Preset to change audio effect${N}"
+    echo "${B}Please make a selection!${N}"
+    echo -e "${B}0) Bathsalts${N}"
+    echo -e "${B}1) DeepBass${N}"
+    echo -e "${B}2) Default${N}"
+    echo -e "${B}3) Holy${N}"
+    echo -e "${B}4) Krazy${N}"
+    echo -e "${B}5) Movie${N}"
+    echo -e "${B}6) Music${N}"
+    echo -e "${B}7) Outdoors${N}"
+    echo -e "${B}8) Pure${N}"
+    echo -e "${B}9) Purestuff${N}"
+    echo -e "${B}10) Shat${N}"
+    echo -e "${B}11) Wideclarity${N}"
+    echo -e "${B}12) Stock${N}"
+    echo -e "${B}r) Return to Menu${N}"
+    echo -e "${B}q) Quit${N}"
+    echo -e -n '${R}[CHOOSE] :  ${N}'
+
+read -r choice
+
+    case $choice in
+      '0') echo "${G}Bathsalts selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (BathSalts)/" $MODPROP
+           cp -rf $BATH $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '1') echo "${G}DeepBass selected...${N}"
+		       sed -ri "s/Preset [^)]+\)/Preset (DEEPBASS)/" $MODPROP
+           cp -rf $DEEP $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '2') echo "${G}Default selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (DEFAULT)/" $MODPROP
+           cp -rf $DEF $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+	    '3') echo "${G}Holy selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (HOLY)/" $MODPROP
+           cp -rf $HOLY $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+	    '4') echo "${G}Krazy selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (KRAZY)/" $MODPROP
+           cp -rf $KZY $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '5') echo "${G}Movie selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (MOVIE)/" $MODPROP
+           cp -rf $MOV $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '6') echo "${G}Music selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (MUSIC)/" $MODPROP
+           cp -rf $MUS $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command$
+           break
+           ;;
+      '7') echo "${G}Outdoors selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (OUTDOORS)/" $MODPROP
+           cp -rf $OUT $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '8') echo "${G}Pure selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (PURE)/" $MODPROP
+           cp -rf $PURE $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '9') echo "${G}Purestuff selected...${N}"
+           sed -ri "s/Preset [^)]+\)/Preset (PURESTUFF)/" $MODPROP
+           cp -rf $PS $MODPATH/system/etc
+           set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+           kill_all_command
+           break
+           ;;
+      '10') echo "${G}Shat selected...${N}"
+            sed -ri "s/Preset [^)]+\)/Preset (SHAT)/" $MODPROP
+            cp -rf $SHAT $MODPATH/system/etc
+            set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+            kill_all_command
+            break
+            ;;
+      '11') echo "${G}Wideclarity selected...${N}"
+            sed -ri "s/Preset [^)]+\)/Preset (WIDE)/" $MODPROP
+            cp -rf $WIDE $MODPATH/system/etc
+            set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+            kill_all_command
+            break
+            ;;
+		'12') echo "${G}Stock selected...${N}"
+          sed -ri "s/Preset [^)]+\)/Preset (STOCK)/" $MODPROP
+          cp -rf $STOCK $MODPATH/system/etc
+          set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+          kill_all_command
+          break
+          ;;
+		'r') echo "${C}Returning to Menu...${N}"
+         menu
+         ;;
+  	'q') echo "${R}quiting!...${N}"
+   		   quit
+		     ;;
+    '*') echo "${Y}item not available! Try Again...${N}"
+         clear
+		     ;;
+    esac
+  done
+echo "${C}Return to menu? < y | n > : ${N}"
+read -r mchoice
+[ "$mchoice" = "y" ] && menu || quit
+}
+
+kill_all_menu() {
+choice=""
+
+while [ "$choice" != "q" ]
+  do
+  	echo
+    echo "${B}choose killall to apply the preset/config!${N}"
+    echo "${B}if killall does nothing choose another config!${N}"
+    echo "${B}you may also reboot if you wish${N}"
+    echo -e "${B}t) Test Config Compatibility by Killing IceSound${N}"
+    echo -e "${B}k) killall${N}"
+    echo -e "${B}r) Reboot${N}"
+    echo -e "${B}x) Return to Menu${N}"
+    echo -e "${B}q) Quit${N}"
+    echo -e -n '${R}[CHOOSE] :  ${N}'
+
+read -r choice
+
+    case $choice in
+		t|T) echo "${G}Test Compatibility selected...${N}"
+		  killall dk.icepower.icesound
+		  break
+		  ;;
+		k|K) echo "${V}Killall selected...${N}"
+		  kill_all_command
+		  break
+		  ;;
+		r|R) echo "${R}Reboot selected...${N}"
+		  setprop sys.powerctl reboot
+		  sleep 15
+		  echo "${W}Reboot Failed! Please Reboot Manually${N}"
+		  ;;
+		x|X) echo "${C}Returning to Menu...${N}"
+		  menu
+		  ;;
+    q|Q) echo "${R}quiting!${N}"
+         quit
+         ;;
+    *) echo "${Y}item not available! Try Again${N}"
+       clear
+	     ;;
+    esac
+  done
+echo "${R}Return to menu? < y | n > : ${N}"
+read -r mchoice
+[ "$mchoice" = "y" ] && menu || quit
+}
+
+
+#Kill commands to apply selected config
+kill_all_command() {
+	echo "${B}   Please Wait for Background Services to be Restarted...${N}"
+	echo "${B}   Stopping services...${N}"
+	ProgressBar 1 3
+
+	for i in "${PLAYERS[@]}"; do
+		if grep -qF $i $XML; then
+			echo "${B}   Closing Out $i to Prevent a Force Reboot...${N}"
+			am force-stop $i
+		fi
+	done
+	
+	sleep 1
+  echo "${B}   Stopping AudioServer...${N}"
+    stop audioserver
+  echo "${B}   Killing ICEsound...${N}"
+    killall dk.icepower.icesound
+  echo "${B}   Restarting services...${N}"
+  ProgressBar 2 3
+    sleep 2
+  echo "${B}   Starting ICEsound...${N}"
+    start dk.icepower.icesound
+    sleep 2
+  echo "${B}   Starting AudioServer...${N}"
+    start audioserver
+    sleep 6 
+	ProgressBar 3 3
+	echo ""
+	echo "${B}   All Backgrounds Services Have Been Restarted!...${N}"
+	echo "${B}   Enjoy Your New Preset or Config...${N}"
+}
+
+prop_menu() {
+choice=""
+
+while [ "$choice" != "q" ]
+  do
+  	echo
+    echo "${B}FULL ICEWIZARD (UI) ONLY!!!!!${N}" 
+    echo "${B}The Following Options were the Props that were in the IceSound.prop File in Previous Versions${N}"
+    echo "${B}Since These are Build.prop Props, Unfortunately Theres NO WAY to Apply These Without Rebooting${N}"
+    echo "${B}Make Sure Every Thing You Have Opened is SAVED${N}"
+    echo "${B}After Selecting a Prop the Device WILL HOT REBOOT${N}"
+    echo "${B}ICEWIZARD TEAM IS NOT RESPONSIBLE FOR LOST FILES ETC....${N}"
+    echo "${B}YOU HAVE BEEN WARNED${N}"
+    echo "${B}Prop Mode 2 Was the Default in Previous Versions${N}"
+  	echo "${B}Please make a selection!${N}"
+  	echo -e "${B}1) Prop Mode 1 (3D)${N}"
+  	echo -e "${B}2) Prop Mode 2 (More 3D)${N}"
+  	echo -e "${B}3) Prop Mode Off${N}"
+  	echo -e "${B}x) Return to Menu${N}"
+  	echo -e "${B}q) Quit${N}"
+  	echo -e -n '${R}[CHOOSE] :  ${N}'
+
+read -r choice
+
+  	case $choice in
+    	1) echo "${B}Prop Mode 1 selected...${N}"
+         sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=1/' $PROP 
+         echo "${G}Device will now hot reboot${N}"
+         setprop ctl.restart zygote
+         break
+         ;;
+      2) echo "${B}Prop Mode 2 selected...${N}"
+         sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=0/' $PROP
+		     echo "${G}Device will now hot reboot${N}"
+		     setprop ctl.restart zygote
+		     break
+         ;;
+    	3) echo "${B}Prop Mode 3 selected...${N}"
+         sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=6/' $PROP
+		     echo "${G}Device will now hot reboot${N}"
+		     setprop ctl.restart zygote
+         break
+         ;;
+    	x|X) echo "${C}Returning to Menu${N}"
+           menu
+           ;;
+    	q|Q) echo "${R}quiting!${N}"
+           quit
+           ;;
+    	*) echo "${Y}item not available! Try Again${N}"
+         clear
+         ;;
+  	esac
+  done
+echo "${R}Return to menu? < y | n > : ${N}"
+read -r mchoice
+[ "$mchoice" = "y" ] && menu || quit
+}
+
+menu() {
+mod_head
+choice=""
+
+while [ "$choice" != "q" ]
+  do
+  	echo
+    echo "${G}Please make a Selection${N}"
+    echo -e "${B}C) Configs${N}"
+    echo -e "${B}P) Presets${N}"
+    echo -e "${B}K) KillAll${N}"
+    [ -d "$MODPATH/system/app/AudioWizardView" ] && echo -e "${B}I) IceWizard Props${N}"
+    echo -e "${B}L) Logs${N}"
+    echo -e "${B}Q) Quit${N}"
+    echo -e -n '${R}[CHOOSE] :  ${N}'
+
+read -r choice
+
+    case $choice in
+      c|C) echo "${G}Configs selected...${N}"
+           config_menu
+           ;;
+      p|P) echo "${B}Presets selected...${N}"
+           presets_menu
+           ;;
+      k|K) echo "${C}KillAll selected...${N}"
+           kill_all_menu
+           ;;
+      i|I) echo "${W}IceWizard Props Selected...${N}"
+           prop_menu
+           ;;
+      l|L) echo "${V}Uploding Logs to termbin...${N}"
+           upload_logs
+           ;;
+      q|Q) echo "${R}Quiting...${N}"
+           quit
+           ;;
+      *) echo "${Y}item not available! Try Again${N}"
+         sleep 1.5
+         clear
+          ;;
+    esac
+  done
+}
+
+menu
+
+quit $?

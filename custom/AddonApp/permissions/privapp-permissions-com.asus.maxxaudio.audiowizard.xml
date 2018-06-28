@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<permissions>
+     <privapp-permissions package="com.asus.maxxaudio.audiowizard">
+        <permission name="android.permission.RECORD_AUDIO"/>
+        <permission name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+        <permission name="android.permission.com.asus.cnzentalk.FAQ" />
+        <permission name="android.permission.SYSTEM_ALERT_WINDOW"/>
+        <permission name="android.permission.READ_EXTERNAL_STORAGE" />
+       </privapp-permissions>
+</permissions>

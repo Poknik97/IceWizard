@@ -1,0 +1,8 @@
+id=IceWizard
+name=ICESound Unity Audio Port
+version=v7.0
+versionCode=70
+author=Michi,John Fawkes,Zackptg5,Skittles9823,guitardedhero,UltraM8,Ephexxxis
+description=ICESound effect made by ICEPower. Nougat ICESound ported by guitardedhero, Oreo port and Add-On for Oxygen OS Oreo modified by Michi.
+support=https://forum.xda-developers.com/apps/magisk/unity-icewizard-t3776470/post76201484#post76201484
+minMagisk=1530

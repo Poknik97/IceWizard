@@ -1,0 +1,12 @@
+ro.asus.aw.settingentry=1
+ro.asus.audiowizard.outdoor=1
+ro.asus.audiowizard.config=1
+ro.asus.sr.pcmch=1
+audio.effect.a2dp.enable=1
+vendor.audio.offload.gapless.enabled=true
+vendor.audio.playback.mch.downsample=false
+persist.vendor.audio.speaker.prot.enable=false
+persist.audio.hifi.int_codec=true
+vendor.audio.parser.ip.buffer.size=262144
+ro.asus.audio.feature=ar101
+ro.asus.aw.mode.path=0

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--  Nemu PureIce Permissions -->
+	
+	<permissions>
+    <privapp-permissions package="dk.icepower.icesound">
+    	  <permission name="dk.icepower.icesound.MODIFY_AUDIO_SETTINGS"
+        protectionLevel="normal"/>
+    <permission name="android.permission.INTERNET"/>
+    <permission name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <permission name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <permission name="android.permission.BLUETOOTH"/>
+    </privapp-permissions>
+</permissions>
