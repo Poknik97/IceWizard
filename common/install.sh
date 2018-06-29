@@ -67,6 +67,16 @@ if $MAGISK && ! $SYSOVERRIDE; then
   fi
 fi
 
+# GET OLD/NEW FROM ZIP NAME
+CONF1=false; CONF2=false; CONF3=false; CONF4=false; NONE=false;
+case $(basename $ZIP) in
+  *conf1*|*Conf1*|*CONF1*) CONF1=true;;
+  *conf2*|*Conf2*|*CONF2*) CONF2=true;;
+  *conf3*|*Conf3*|*CONF3*) CONF3=true;;
+  *conf4*|*Conf4*|*CONF4*) CONF4=true;;
+  *none*|*None*|*NONE*) NONE=true;;
+esac
+
 # Keycheck binary by someone755 @Github, idea for code below by Zappo @xda-developers
 KEYCHECK=$INSTALLER/common/keycheck
 chmod 755 $KEYCHECK
@@ -100,9 +110,11 @@ for REMNANT in $(find /data -name "*IceSoundService*" -o -name "*AudioWizard*" -
   fi
 done
 
-if keytest; then
+ui_print ""
+if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $NONE; then
+ if keytest; then
   FUNCTION=chooseconfig
-else
+ else
   FUNCTION=chooseconfigold
   ui_print "   ! Legacy device detected! Using old keycheck method"
   ui_print " "
@@ -111,48 +123,50 @@ else
   $FUNCTION "UP"
   ui_print "   Press Vol Down"
   $FUNCTION "DOWN"
-fi
-if [ "$API" -ge 26 ] && [ ! "$OP3OOS" ]; then
+ fi
+ if [ "$API" -ge 26 ] && [ ! "$OP3OOS" ]; then
   ui_print " PureIcesound compatible device "
   PURE=true
-else
+ else
   ui_print " "
   ui_print " Fully compatible device "
   ui_print "   Choose which version of IceSound you want installed:"
   ui_print "   PureIceSound, or IceWizard"
   ui_print " "
   ui_print "   Vol+ = PureICE  Vol- = IceWizard"
-   if $FUNCTION; then
+  if $FUNCTION; then
     PURE=true
-   else
+  else
     ICEW=true
-   fi 
-  fi
-
+  fi 
+ fi
   ui_print " "
   ui_print "   Choose which config you want installed:"
   ui_print "   Processing may either occur or not occur"
   ui_print "   depending which config is used."
   ui_print " "
   ui_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
-  if $FUNCTION; then
+ if $FUNCTION; then
     CONF1=true
-  else
+ else
     ui_print " "
     ui_print "   Choose which config you want installed:"
     ui_print "   Vol+ = Config2 Vol- = Config 3 or 4"
-    if $FUNCTION; then
+  if $FUNCTION; then
       CONF2=true
-    else
+  else
     ui_print " "
     ui_print "   Choose which config you want installed:"
     ui_print "   Vol+ = Config3 Vol- = Config4"
-    if $FUNCTION; then
+   if $FUNCTION; then
       CONF3=true
-    else
+   else
       CONF4=true
-    fi
+   fi
   fi
+ fi
+else
+  ui_print "   V4A version specified in zipname!"
 fi
 
 # Prep terminal script
@@ -204,6 +218,11 @@ if [ "$CONF4" ]; then
   sed -i "s/a2dpfasttrackoutputs 4/a2dpfasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/fasttrackoutputs 4/fasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/usbaudiofasttrackoutputs 4/usbaudiofasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
+fi
+
+if [ "$NONE" ]; then
+ui_print " - No Config Selected."
+rm -f $INSTALLER/system/etc/icesoundconfig.def
 fi
 
 if [ "$API" -ge 26 ] && [ "$ICEW" ]; then
