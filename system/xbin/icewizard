@@ -276,7 +276,7 @@ com.aspiro.tidal
 #HEAR=com.clearchannel.iheartradio.controller
 #TID=com.aspiro.tidal
 ASUS=com.asus.maxxaudio.audiowizard
-XML=data/system/packages.xml
+XML=/data/system/packages.xml
 VEN=/system/vendor
 SYS=/system
 if [ -f $VEN/build.prop ]; then BUILDS="/system/build.prop $VEN/build.prop"; else BUILDS="/system/build.prop"; fi
