@@ -22,6 +22,13 @@
 
 ## Changelog
 
+v7.2
+ - Started to add deluxe port
+
+v7.1
+ - Re-added zip naming scheme
+ - Fixed reading from packages.xml
+
 v7.0
  - Fixed bugs in terminal script 
  - Added sepolicy fix to allow terminal script to work on enforcing
