@@ -3,12 +3,12 @@ osp_detect() {
     *.conf) SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
             EFFECTS=$(sed -n "/^output_session_processing {/,/^}/ {/^$SPACES\music {/,/^$SPACES}/p}" $1 | grep -E "^$SPACES +[A-Za-z]+" | sed -r "s/( *.*) .*/\1/g")
             for EFFECT in ${EFFECTS}; do
-             SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
-              [ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/ s/^/#/g}" $1
+              SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
+              [ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/d}" $1
             done;;
      *.xml) EFFECTS=$(sed -n "/^ *<postprocess>$/,/^ *<\/postprocess>$/ {/^ *<stream type=\"music\">$/,/^ *<\/stream>$/ {/<stream type=\"music\">/d; /<\/stream>/d; s/<apply effect=\"//g; s/\"\/>//g; p}}" $1)
             for EFFECT in ${EFFECTS}; do
-              [ "$EFFECT" != "atmos" ] && sed -ri "s/^( *)<apply effect=\"$EFFECT\"\/>/\1<\!--<apply effect=\"$EFFECT\"\/>-->/" $1
+              [ "$EFFECT" != "atmos" ] && sed -i "s/^( *)<apply effect=\"$EFFECT\"\/>/d" $1
             done;;
   esac
 }
@@ -57,7 +57,7 @@ chooseconfigold() {
 # Tell user aml is needed if applicable
 if $MAGISK && ! $SYSOVERRIDE; then
   if $BOOTMODE; then LOC="/sbin/.core/img/*/system $MOUNTPATH/*/system"; else LOC="$MOUNTPATH/*/system"; fi
-  FILES=$(find $LOC -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml" -o -name "*mixer_paths*.xml")
+  FILES=$(find $LOC -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")
   if [ ! -z "$FILES" ] && [ ! "$(echo $FILES | grep '/aml/')" ]; then
     ui_print " "
     ui_print "   ! Conflicting audio mod found!"
@@ -68,14 +68,14 @@ if $MAGISK && ! $SYSOVERRIDE; then
 fi
 
 # GET OLD/NEW FROM ZIP NAME
-CONF1=false; CONF2=false; CONF3=false; CONF4=false; NONE=false;
-case $(basename $ZIP) in
-  *conf1*|*Conf1*|*CONF1*) CONF1=true;;
-  *conf2*|*Conf2*|*CONF2*) CONF2=true;;
-  *conf3*|*Conf3*|*CONF3*) CONF3=true;;
-  *conf4*|*Conf4*|*CONF4*) CONF4=true;;
-  *none*|*None*|*NONE*) NONE=true;;
-esac
+#CONF1=false; CONF2=false; CONF3=false; CONF4=false; CONF0=false;
+#case $(basename $ZIP) in
+#  *conf1*|*Conf1*|*CONF1*) CONF1=true;;
+#  *conf2*|*Conf2*|*CONF2*) CONF2=true;;
+#  *conf3*|*Conf3*|*CONF3*) CONF3=true;;
+#  *conf4*|*Conf4*|*CONF4*) CONF4=true;;
+#  *none*|*None*|*NONE*) CONF0=true;;
+#esac
 
 # Keycheck binary by someone755 @Github, idea for code below by Zappo @xda-developers
 KEYCHECK=$INSTALLER/common/keycheck
@@ -111,7 +111,7 @@ for REMNANT in $(find /data -name "*IceSoundService*" -o -name "*AudioWizard*" -
 done
 
 ui_print ""
-if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $NONE; then
+#if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $CONF0; then
  if keytest; then
   FUNCTION=chooseconfig
  else
@@ -124,6 +124,7 @@ if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $NONE; then
   ui_print "   Press Vol Down"
   $FUNCTION "DOWN"
  fi
+
  if [ "$API" -ge 26 ] && [ ! "$OP3OOS" ]; then
   ui_print " PureIcesound compatible device "
   PURE=true
@@ -138,36 +139,36 @@ if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $NONE; then
     PURE=true
   else
     ICEW=true
-  fi 
+  fi
  fi
-  ui_print " "
+
+  ui_priant " "
   ui_print "   Choose which config you want installed:"
   ui_print "   Processing may either occur or not occur"
   ui_print "   depending which config is used."
-  ui_print " "
-  ui_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
- if $FUNCTION; then
-    CONF1=true
- else
-    ui_print " "
-    ui_print "   Choose which config you want installed:"
-    ui_print "   Vol+ = Config2 Vol- = Config 3 or 4"
   if $FUNCTION; then
-      CONF2=true
+  conf2=true
   else
     ui_print " "
     ui_print "   Choose which config you want installed:"
-    ui_print "   Vol+ = Config3 Vol- = Config4"
+    ui_print "   Vol+ = Config 3 Vol- = Config or No Config"
    if $FUNCTION; then
-      CONF3=true
+     CONF3=true
    else
-      CONF4=true
+    ui_print " "
+    ui_print "   Choose which config you want installed:"
+    ui_print "   Vol+ = Config 4 Vol- = No Config"
+    if $FUNCTION; then
+      conf4=true
+    else
+      conf0=true
+    fi
    fi
   fi
- fi
-else
-  ui_print "   V4A version specified in zipname!"
-fi
+# fi  
+#else
+#  ui_print "   Config specified in zipname!"
+#fi
 
 # Prep terminal script
 sed -i -e "s|<MAGISK>|$MAGISK|" -e "s|<PROP>|$PROP|" -e "s|<MODPROP>|$MOD_VER|" -e "s|<ROOT>|$ROOT|" $INSTALLER/system/xbin/icewizard
@@ -220,8 +221,9 @@ if [ "$CONF4" ]; then
   sed -i "s/usbaudiofasttrackoutputs 4/usbaudiofasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
 fi
 
-if [ "$NONE" ]; then
+if [ "$CONF0" ]; then
 ui_print " - No Config Selected."
+ sed -ri "s/version=(.*)/version=\1 Config (0)/" $INSTALLER/module.prop
 rm -f $INSTALLER/system/etc/icesoundconfig.def
 fi
 
@@ -266,10 +268,10 @@ fi
  ui_print " Installing Custom Presets (Thanks Arise Team!!!)"
  ui_print " Please Run icewizard in Terminal to Change Presets/Configs/Props"
  ui_print " No Need To Reboot After Changing. IceSound will be Killed to Apply Preset/Config"
- ui_print "A Reboot is required to Apply Prop"
+ ui_print " A Reboot is required to Apply Prop"
  cp -rf $INSTALLER/custom/IceWizard $SDCARD
  if [ $SDCARD/IceWizard ]; then
-   ui_print "All Custom Presets/Configs/Props Have Been Successfully Copied to $SDCARD"
+   ui_print "All Custom Presets and Confgs Have Been Successfully Copied to $SDCARD"
  fi
 
 ui_print "   Patching existing audio_effects files..."

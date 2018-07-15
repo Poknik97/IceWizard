@@ -23,10 +23,12 @@
 ## Changelog
 
 v7.2
- - Started to add deluxe port
+ - fix killall to not lose sound (sorry about that)
+ - Added a no config option
+ - hopefully fix config/preset stacking in module.prop
+ - Add a new Preset (Crystalline) thanks to @DeadRoEd
 
 v7.1
- - Re-added zip naming scheme
  - Fixed reading from packages.xml
 
 v7.0
