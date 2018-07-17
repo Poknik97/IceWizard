@@ -118,13 +118,13 @@ ROM=$(getprop ro.build.display.id)
 api_level_arch_detect
 
 # Version Number
-VER=$(grep_prop version $MODDIR/module.prop)
+VER=$(grep_prop version $MODPATH/module.prop)
 # Version Code
-REL=$(grep_prop versionCode $MODDIR/module.prop)
+REL=$(grep_prop versionCode $MODPATH/module.prop)
 # Author
-AUTHOR=$(grep_prop author $MODDIR/module.prop)
+AUTHOR=$(grep_prop author $MODPATH/module.prop)
 # Mod Name/Title
-MODTITLE=$(grep_prop name $MODDIR/module.prop)
+MODTITLE=$(grep_prop name $MODPATH/module.prop)
 
 # Colors
 G='\e[01;32m'		# GREEN TEXT
@@ -367,6 +367,7 @@ read -r choice
       menu
       ;;
     q|Q) echo "${R}quiting!${N}"
+      clear
       quit
       ;;
     *) echo "${Y}item not available! Try Again${N}"
@@ -376,7 +377,7 @@ read -r choice
   done
 echo -n "${C}Return to menu? < y | n > : ${N}"
 read -r mchoice
-[ "$mchoice" = "y" ] && menu || quit
+[ "$mchoice" = "y" ] && menu || clear && quit
 }
 
 presets_menu() {
@@ -384,6 +385,7 @@ presets_menu() {
 
 while [ "$choice" != "q" ];
   do
+    clear
     echo "$div"
     title_div "${G}ICEWIZARD PRESETS${N}"
     echo "$div"
@@ -514,6 +516,7 @@ read -r choice
       menu
       ;;
   	'q') echo "${R}quiting!...${N}"
+      clear
    	  quit
 		  ;;
     '*') echo "${Y}item not available! Try Again...${N}"
@@ -523,7 +526,7 @@ read -r choice
   done
 echo -n "${C}Return to menu? < y | n > : ${N}"
 read -r mchoice
-[ "$mchoice" = "y" ] && menu || quit
+[ "$mchoice" = "y" ] && menu || clear && quit
 }
 
 kill_all_menu() {
@@ -567,49 +570,52 @@ read -r choice
 		  menu
 		  ;;
     q|Q) echo "${R}quiting!${N}"
-         quit
-         ;;
+      clear
+      quit
+      ;;
     *) echo "${Y}item not available! Try Again${N}"
-       clear
-	     ;;
+      clear
+	    ;;
     esac
   done
 echo -n "${R}Return to menu? < y | n > : ${N}"
 read -r mchoice
-[ "$mchoice" = "y" ] && menu || quit
+[ "$mchoice" = "y" ] && menu || clear && quit
 }
 
 
 #Kill commands to apply selected config
 kill_all_command() {
 	echo "${B}   Please Wait for Background Services to be Restarted...${N}"
+  echo " "
 	echo "${B}   Stopping services...${N}"
 	ProgressBar 1 3
 
 	for i in "${PLAYERS[@]}"; do
 		if grep -qF $i $XML; then
+      echo " "
 			echo "${B}   Closing Out $i to Prevent a Force Reboot...${N}"
 			am force-stop $i
 		fi
 	done
 
 	sleep 1
-#  echo "${B}   Stopping AudioServer...${N}"
-#    stop audioserver
+  echo " "
   echo "${B}   Killing ICEsound...${N}"
     killall dk.icepower.icesound
+    ProgressBar 2 3
+  echo " "
   echo "${B}   Restarting services...${N}"
-  ProgressBar 2 3
-    sleep 2
+  echo " "
+  sleep 2
   echo "${B}   Starting ICEsound...${N}"
     start dk.icepower.icesound
     sleep 2
-#  echo "${B}   Starting AudioServer...${N}"
-#    start audioserver
-    sleep 6
+  echo " "
 	ProgressBar 3 3
-	echo ""
+	echo " "
 	echo "${B}   All Backgrounds Services Have Been Restarted!...${N}"
+  echo " "
 	echo "${B}   Enjoy Your New Preset or Config...${N}"
 }
 
@@ -666,6 +672,7 @@ read -r choice
       menu
       ;;
     q|Q) echo "${R}quiting!${N}"
+      clear
       quit
       ;;
     *) echo "${Y}item not available! Try Again${N}"
@@ -675,7 +682,7 @@ read -r choice
   done
 echo -n "${R}Return to menu? < y | n > : ${N}"
 read -r mchoice
-[ "$mchoice" = "y" ] && menu || quit
+[ "$mchoice" = "y" ] && menu || clear && quit
 }
 
 menu() {
@@ -684,7 +691,7 @@ choice=""
 while [ "$choice" != "q" ]
   do  	
   mod_head
-    echo "$div"
+    echo ""
     title_div "${G}ICEWIZARD MAIN MENU${N}"
     echo "$div"
     echo ""
@@ -716,6 +723,7 @@ read -r choice
       upload_logs
       ;;
     q|Q) echo "${R}Quiting...${N}"
+      clear
       quit
       ;;
     *) echo "${Y}item not available! Try Again${N}"
