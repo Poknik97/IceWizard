@@ -27,6 +27,16 @@ v7.2
  - Added a no config option
  - hopefully fix config/preset stacking in module.prop
  - Add a new Preset (Crystalline) thanks to @DeadRoEd
+ - Fix menu not clearing properally
+ - add colors,dividers,titles
+ - fix killall progessbars
+ - fix not installing properally
+ - fix mod_head
+ - remove not needed .aml.sh
+ - comment music_helper under osp
+ - fix configs/presets "stacking" in module.prop when changing to different config/preset
+
+
 
 v7.1
  - Fixed reading from packages.xml
