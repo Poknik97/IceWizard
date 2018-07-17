@@ -326,7 +326,7 @@ read -r choice
   case $choice in
     '1') echo "${G}Config 1 selected...${N}"
       cp -rf $CONF1 $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config1/" $MODPROP
+      sed -ri "s/Config([0-9])/Config (1)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 1 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
@@ -334,7 +334,7 @@ read -r choice
       ;;
     '2') echo "${G}Config 2 selected...${N}"
       cp -rf $CONF2 $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config2/" $MODPROP
+      sed -ri "s/Config([0-9])/Config (2)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 2 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
@@ -342,7 +342,7 @@ read -r choice
       ;;
     '3') echo "${G}Config 3 selected...${N}"
       cp -rf $CONF3 $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config3/" $MODPROP
+      sed -ri "s/Config([0-9])/Config (3)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 3 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
@@ -350,15 +350,15 @@ read -r choice
       ;;
 		'4') echo "${G}Config 4 selected...${N}"
       cp -rf $CONF4 $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config4/" $MODPROP
+      sed -ri "s/Config([0-9])/Config (4)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 4 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
 		  break
 		  ;;
     '5') echo "${G}No Config Selected...${N}"
-      rm -f $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config0/" $MODPROP
+      rm -f $MODPATH/system/etc/icesoundconfig.def
+      sed -ri "s/Config([0-9])/Config (0)/" $MODPROP
       kill_all_command
       echo "${B}No Config Applied Successfully. This Option May or May Not Allow ICESound to Process. This is Mainly for Expirementing with icesoundconfig"
       break
@@ -679,11 +679,11 @@ read -r mchoice
 }
 
 menu() {
-mod_head
 choice=""
 
 while [ "$choice" != "q" ]
   do  	
+  mod_head
     echo "$div"
     title_div "${G}ICEWIZARD MAIN MENU${N}"
     echo "$div"
