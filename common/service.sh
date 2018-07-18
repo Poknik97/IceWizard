@@ -11,3 +11,4 @@ else
   $SEINJECT -Z dts_data_file -l  
 fi
 
+su -c killall dk.icepower.icesound
