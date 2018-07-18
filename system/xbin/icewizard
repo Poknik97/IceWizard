@@ -7,6 +7,20 @@
 # > ENTER MAGISK MODULE ID HERE
 ID="IceWizard"
 
+#=========================== Set Log Files
+mount -o remount,rw /cache 2>/dev/null
+mount -o rw,remount /cache 2>/dev/null
+# > Logs should go in this file
+LOG=/cache/${ID}.log
+oldLOG=/cache/${ID}-old.log
+# > Verbose output goes here
+VERLOG=/cache/${ID}-verbose.log
+oldVERLOG=/cache/${ID}-verbose-old.log
+
+#=========================== Start Logging verbosely
+mv -f $VERLOG $oldVERLOG 2>/dev/null; mv -f $LOG $oldLOG 2>/dev/null
+set -x 2>$VERLOG
+
 #=========================== Determine if A/B OTA device
 if [ -d /system_root ]; then
 	isABDevice=true
@@ -305,7 +319,7 @@ while [ "$choice" != "q" ]
   do
     clear
   	echo "$div"
-    title_div "${G}ICEWIZARD CONIGS${N}"
+    title_div "${G}ICEWIZARD CONFIGS${N}"
     echo "$div"
     echo ""
   	echo "${B}make sure to choose killall option before exiting to apply settings!${N}"
@@ -601,8 +615,8 @@ kill_all_command() {
 
 	sleep 1
   echo " "
-  echo "${B}   Killing ICEsound...${N}"
-    killall dk.icepower.icesound
+  echo "${B}   Stopping ICEsound...${N}"
+    stop dk.icepower.icesound
     ProgressBar 2 3
   echo " "
   echo "${B}   Restarting services...${N}"

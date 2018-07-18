@@ -22,7 +22,17 @@
 
 ## Changelog
 
+v7.4
+ - Unity 1.5.5
+
+v7.3
+ - hopefully fix configs by reverting config fixes from 7.2
+
 v7.2
+ - fix Typos
+ - dont kill ice anymore. just stop/start service
+ - fix config files
+ - forgot to delete .aml.sh
  - fix killall to not lose sound (sorry about that)
  - Added a no config option
  - hopefully fix config/preset stacking in module.prop
