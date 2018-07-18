@@ -22,6 +22,11 @@
 
 ## Changelog
 
+v7.5
+ - Fix configs not working again (accidentally deleted stock config)
+ - Make install.sh more effiecent (thanks zackptg5)
+ - Fix the massive service.sh to only include the needed sepolicies
+ 
 v7.4
  - Unity 1.5.5
 
