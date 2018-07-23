@@ -22,6 +22,9 @@
 
 ## Changelog
 
+v7.6
+ - Forgot some stuff in terminal script
+
 v7.5
  - FINALLY STABLE AS CAN BE!!!!
  - Finally fixed sound on boot (thanks Rey for testing)

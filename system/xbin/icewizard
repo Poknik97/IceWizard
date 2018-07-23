@@ -343,7 +343,7 @@ read -r choice
       sed -ri "s/Config([0-9])/Config (1)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
-      echo "${G}Config 1 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
+      echo "${G}Config 1 Applied Successfully...${N}"
       break
       ;;
     '2') echo "${G}Config 2 selected...${N}"
@@ -351,7 +351,7 @@ read -r choice
       sed -ri "s/Config([0-9])/Config (2)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
-      echo "${G}Config 2 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
+      echo "${G}Config 2 Applied Successfully...${N}"
       break
       ;;
     '3') echo "${G}Config 3 selected...${N}"
@@ -359,7 +359,7 @@ read -r choice
       sed -ri "s/Config([0-9])/Config (3)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
-      echo "${G}Config 3 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
+      echo "${G}Config 3 Applied Successfully...${N}"
       break
       ;;
 		'4') echo "${G}Config 4 selected...${N}"
@@ -367,7 +367,7 @@ read -r choice
       sed -ri "s/Config([0-9])/Config (4)/" $MODPROP
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
-      echo "${G}Config 4 Applied Successfully. If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
+      echo "${G}Config 4 Applied Successfully...${N}"
 		  break
 		  ;;
     '5') echo "${G}No Config Selected...${N}"
@@ -431,98 +431,126 @@ read -r choice
     '0') echo "${G}Crystalline selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (Crystalline)/" $MODPROP
       cp -rf $CRYS $MODPATH/system/etc
+			cp -rf $CRYS $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '1') echo "${G}Bathsalts selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (BathSalts)/" $MODPROP
       cp -rf $BATH $MODPATH/system/etc
+			cp -rf $BATH $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '2') echo "${G}DeepBass selected...${N}"
 	    sed -ri "s/Preset [^)]+\)/Preset (DEEPBASS)/" $MODPROP
       cp -rf $DEEP $MODPATH/system/etc
+			cp -rf $DEEP $MODPATH/system/vendor/etc 
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '3') echo "${G}Default selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (DEFAULT)/" $MODPROP
       cp -rf $DEF $MODPATH/system/etc
+			cp -rf $DEF $MODPATH/system/vendor/etc 
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
 	  '4') echo "${G}Holy selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (HOLY)/" $MODPROP
       cp -rf $HOLY $MODPATH/system/etc
+			cp -rf $HOLY $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
 	  '5') echo "${G}Krazy selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (KRAZY)/" $MODPROP
       cp -rf $KZY $MODPATH/system/etc
+			cp -rf $KZY $MODPATH/system/vendor/ETC
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '6') echo "${G}Movie selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (MOVIE)/" $MODPROP
       cp -rf $MOV $MODPATH/system/etc
+			cp -rf $MOV $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '7') echo "${G}Music selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (MUSIC)/" $MODPROP
       cp -rf $MUS $MODPATH/system/etc
+			cp -rf $MUS $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '8') echo "${G}Outdoors selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (OUTDOORS)/" $MODPROP
       cp -rf $OUT $MODPATH/system/etc
+			cp -rf $OUT $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '9') echo "${G}Pure selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (PURE)/" $MODPROP
       cp -rf $PURE $MODPATH/system/etc
+			cp -rf $PURE $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '10') echo "${G}Purestuff selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (PURESTUFF)/" $MODPROP
       cp -rf $PS $MODPATH/system/etc
+			cp -rf $PS $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '11') echo "${G}Shat selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (SHAT)/" $MODPROP
       cp -rf $SHAT $MODPATH/system/etc
+			cp -rf $SHAT $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
     '12') echo "${G}Wideclarity selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (WIDE)/" $MODPROP
       cp -rf $WIDE $MODPATH/system/etc
+			cp -rf $WIDE $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendoretc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
 		'13') echo "${G}Stock selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (STOCK)/" $MODPROP
       cp -rf $STOCK $MODPATH/system/etc
+			cp -rf $STOCK $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
@@ -567,9 +595,11 @@ while [ "$choice" != "q" ]
 
 read -r choice
   case $choice in
-		t|T) echo "${G}Test Compatibility selected...${N}"
+		t|T) echo "${W}Test Compatibility selected...${N}"
 		  killall dk.icepower.icesound
-		  break
+			sleep 7
+			echo "${G}If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
+			break
 		  ;;
 		k|K) echo "${V}Killall selected...${N}"
 		  kill_all_command
