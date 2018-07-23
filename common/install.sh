@@ -67,14 +67,16 @@ if $MAGISK && ! $SYSOVERRIDE; then
   fi
 fi
 
-CONF1=false; CONF2=false; CONF3=false; CONF4=FALSE; CONF0=FALSE;
- GET STOCK/LIMIT FROM ZIP NAME
+CONF1=false; CONF2=false; CONF3=false; CONF4=false; CONF0=false; FULL=false; PURE=false
+# GET STOCK/LIMIT FROM ZIP NAME
 case $(basename $ZIP) in
   *conf1*|*Conf1*|*CONF1*) CONF1=true;;
   *conf2*|*Conf2*|*CONF2*) CONF2=true;;
   *conf3*|*Conf3*|*CONF3*) CONF3=true;;
   *conf4*|*Conf4*|*CONF4*) CONF4=true;;
   *conf0*|*Conf0*|*CONF0*) CONF0=true;;
+  *full*|*Full*|*FULL*) FULL=true;;
+  *pure*|*Pure*|*PURE*) PURE=true;;
 esac
 
 # Keycheck binary by someone755 @Github, idea for code below by Zappo @xda-developers
@@ -110,71 +112,80 @@ for REMNANT in $(find /data -name "*IceSoundService*" -o -name "*AudioWizard*" -
 done
 
 ui_print ""
-if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $FULL && ! $AUDF; then
+if [ "$CONF1" == false -a "$CONF2" == false -a "$CONF3" == false -a "$CONF4" == false -a "$CONF0" == false ] || [ "$FULL" == false -a "$PURE" == false ]; then
   if keytest; then
-   FUNCTION=chooseconfig
+    FUNCTION=chooseconfig
   else
-   FUNCTION=chooseconfigold
-  ui_print "   ! Legacy device detected! Using old keycheck method"
-  ui_print " "
-  ui_print "- Vol Key Programming -"
-  ui_print "   Press Vol Up Again:"
-  $FUNCTION "UP"
-  ui_print "   Press Vol Down"
-  $FUNCTION "DOWN"
+    FUNCTION=chooseconfigold
+    ui_print "   ! Legacy device detected! Using old keycheck method"
+    ui_print " "
+    ui_print "- Vol Key Programming -"
+    ui_print "   Press Vol Up Again:"
+    $FUNCTION "UP"
+    ui_print "   Press Vol Down"
+    $FUNCTION "DOWN"
   fi
- if [ "$API" -ge 26 ] && [ ! "$OP3OOS" ]; then
-  ui_print " "
-  ui_print "   PureIcesound compatible device "
-  PURE=true
- else
-  ui_print " "
-  ui_print "   Fully compatible device "
-  ui_print "   Choose which version of IceSound you want installed:"
-  ui_print "   PureIceSound, or IceWizard"
-  ui_print " "
-  ui_print "   Vol+ = PureICE  Vol- = IceWizard"
-  if $FUNCTION; then
-    PURE=true
-  else
-    ICEW=true
-  fi
- fi
 
-ui_print " "
-ui_print "   Choose which config you want installed:"
-ui_print "   Processing may either occur or not occur"
-ui_print "   depending which config is used."
-ui_print " "
-ui_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
- if $FUNCTION; then
-  CONF1=true
- else
-  ui_print " "
-  ui_print "   Choose which config you want installed:"
-  ui_print "   Vol+ = Config2 Vol- = Config 3 or 4"
-  if $FUNCTION; then
-    CONF2=true
+  if ! $PURE && ! $FULL; then
+    if [ $API -ge 26 ] && [ ! "$OP3OOS" ]; then
+      ui_print " "
+      ui_print "   PureIcesound compatible device "
+      PURE=true
+    else
+      ui_print " "
+      ui_print "   Fully compatible device "
+      ui_print "   Choose which version of IceSound you want installed:"
+      ui_print "   PureIceSound, or IceWizard"
+      ui_print " "
+      ui_print "   Vol+ = PureICE  Vol- = IceWizard"
+      if $FUNCTION; then
+        PURE=true
+      else
+        FULL=true
+      fi
+    fi
   else
+    ui_print "   Version specified in zipname!"
+  fi
+
+  if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $CONF0; then
     ui_print " "
     ui_print "   Choose which config you want installed:"
-    ui_print "   Vol+ = Config 3 Vol- = Config 4 or No Config"
+    ui_print "   Processing may either occur or not occur"
+    ui_print "   depending which config is used."
+    ui_print " "
+    ui_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
     if $FUNCTION; then
-      CONF3=true
+      CONF1=true
     else
       ui_print " "
       ui_print "   Choose which config you want installed:"
-      ui_print "   Vol+ = Config 4 Vol- = No Config"
+      ui_print "   Vol+ = Config 2 Vol- = Config 3 or 4"
       if $FUNCTION; then
-        CONF4=true
+        CONF2=true
       else
-        CONF0=true
+        ui_print " "
+        ui_print "   Choose which config you want installed:"
+        ui_print "   Vol+ = Config 3 Vol- = Config 4 or No Config"
+        if $FUNCTION; then
+          CONF3=true
+        else
+          ui_print " "
+          ui_print "   Choose which config you want installed:"
+          ui_print "   Vol+ = Config 4 Vol- = No Config"
+          if $FUNCTION; then
+            CONF4=true
+          else
+            CONF0=true
+          fi
+        fi
       fi
     fi
+  else
+    ui_print "   Config specified in zipname!"
   fi
- fi
 else
-  ui_print "   Config specified in zipname!"
+  ui_print "   Version and config specified in zipname!"
 fi
 # Prep terminal script
 sed -i -e "s|<MAGISK>|$MAGISK|" -e "s|<PROP>|$PROP|" -e "s|<MODPROP>|$MOD_VER|" -e "s|<ROOT>|$ROOT|" $INSTALLER/system/xbin/icewizard
@@ -184,36 +195,35 @@ else
   sed -i "s|<MODPATH>|\"\"|" $INSTALLER/system/xbin/icewizard
 fi
 
-if [ "$PURE" ]; then
-  ui_print " - PureICE selected."
-  sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
-  sed -ri "s/name=(.*)/name=\1 (PUREICE)/" $INSTALLER/module.prop
-else
-  ui_print " - ICEWizard selected."
-  sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
-  sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
-  cp -rf $INSTALLER/custom/AddonApp/AudioWizard $INSTALLER/system/priv-app
-  mkdir -p $INSTALLER/system/app
-  cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/app
-  cp -f $INSTALLER/custom/AddonApp/permissions/privapp-permissions-com.asus.maxxaudio.xml $INSTALLER/system/etc/permissions/privapp-permissions-com.asus.maxxaudio.xml
+ui_print " "
+ui_print "   Installing Custom Presets (Thanks Arise Team!!!)"
+ui_print "   Please Run su icewizard in Terminal to Change"
+ui_print "    Presets/Configs/Props"
+ui_print "   No Need To Reboot After Changing. IceSound"
+ui_print "    will be Killed to Apply Preset/Config"
+ui_print "   A Reboot is required to Apply Prop"
+cp -rf $INSTALLER/custom/IceWizard $SDCARD
+if [ $SDCARD/IceWizard ]; then
+  ui_print "   All Custom Presets and Confgs Have Been"
+  ui_print "    Successfully Copied to $SDCARD"
 fi
 
-if [ "$CONF1" ]; then
+if $CONF1; then
   ui_print " - Config1 selected."
   sed -ri "s/version=(.*)/version=\1 Config (1)/" $INSTALLER/module.prop
   sed -ri "s/Config=(.*)/Config=\1 Config = 1/" $INSTALLER/system/etc/icesoundconfig.def
-elif [ "$CONF2" ]; then
+elif $CONF2; then
   ui_print " - Config2 selected."
   sed -ri "s/version=(.*)/version=\1 Config (2)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
   sed -ri "s/Config=(.*)/Config=\1 Config = 2/" $INSTALLER/system/etc/icesoundconfig.def
-elif [ "$CONF3" ]; then
+elif $CONF3; then
   ui_print " - Config3 selected."
   sed -ri "s/version=(.*)/version=\1 Config (3)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/fasttrack true/fasttrack false/" $INSTALLER/system/etc/icesoundconfig.def
    sed -ri "s/Config=(.*)/Config=\1 Config = 3/" $INSTALLER/system/etc/icesoundconfig.def
-elif [ "$CONF4" ]; then
+elif $CONF4; then
   ui_print " - Config4 selected."
   sed -ri "s/version=(.*)/version=\1 Config (4)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
@@ -221,14 +231,21 @@ elif [ "$CONF4" ]; then
   sed -i "s/fasttrackoutputs 4/fasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/usbaudiofasttrackoutputs 4/usbaudiofasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
  sed -ri "s/Config=(.*)/Config=\1 Config = 4/" $INSTALLER/system/etc/icesoundconfig.def
-elif [ "$CONF0" ]; then
+elif $CONF0; then
   ui_print " - No Config Selected."
   sed -ri "s/version=(.*)/version=\1 Config (0)/" $INSTALLER/module.prop
   rm -f $INSTALLER/system/etc/icesoundconfig.def
 fi
 
-if [ "$ICEW" ]; then
-  if [ "$API" -ge 26 ]; then
+if $FULL; then
+  ui_print " - ICEWizard selected."
+  sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+  sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
+  cp -rf $INSTALLER/custom/AddonApp/AudioWizard $INSTALLER/system/priv-app
+  mkdir -p $INSTALLER/system/app
+  cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/app
+  cp -f $INSTALLER/custom/AddonApp/permissions/privapp-permissions-com.asus.maxxaudio.xml $INSTALLER/system/etc/permissions/privapp-permissions-com.asus.maxxaudio.xml
+  if [ $API -ge 26 ]; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
@@ -259,19 +276,10 @@ if [ "$ICEW" ]; then
     cp -f $INSTALLER/custom/Nougat/lib/x86/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   fi
-fi
-
-ui_print " "
-ui_print "   Installing Custom Presets (Thanks Arise Team!!!)"
-ui_print "   Please Run su icewizard in Terminal to Change"
-ui_print "    Presets/Configs/Props"
-ui_print "   No Need To Reboot After Changing. IceSound"
-ui_print "    will be Killed to Apply Preset/Config"
-ui_print "   A Reboot is required to Apply Prop"
-cp -rf $INSTALLER/custom/IceWizard $SDCARD
-if [ $SDCARD/IceWizard ]; then
-  ui_print "   All Custom Presets and Confgs Have Been"
-  ui_print "    Successfully Copied to $SDCARD"
+else
+  ui_print " - PureICE selected."
+  sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+  sed -ri "s/name=(.*)/name=\1 (PUREICE)/" $INSTALLER/module.prop
 fi
 
 ui_print "   Patching existing audio_effects files..."
@@ -283,14 +291,14 @@ for OFILE in ${CFGS}; do
     *.conf) sed -i "/icepower {/,/}/d" $FILE
             sed -i "/icepower_algo {/,/}/d" $FILE
 #            sed -i "/icepower_eq {/,/}/d" $FILE
-            sed -i "/icepower_null {/,/}/d" $FILE
-            sed -i "/icepower_load {/,/}/d" $FILE
-            sed -i "/icepower_test {/,/}/d" $FILE
+#            sed -i "/icepower_null {/,/}/d" $FILE
+#            sed -i "/icepower_load {/,/}/d" $FILE
+#            sed -i "/icepower_test {/,/}/d" $FILE
             sed -i "/^output_session_processing {/,/^}/ {/music_helper {/,/}/ s/^/#$MODID/g}" $FILE
             sed -i "s/^libraries {/libraries {\n  icepower { #$MODID\n    path $LIBPATCH\/lib\/soundfx\/libicepower.so\n  } #$MODID/g" $FILE
-            sed -i "s/^effects {/effects {\n  icepower_test { #$MODID\n    library icepower\n    uuid e5456320-5391-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
-            sed -i "s/^effects {/effects {\n  icepower_load { #$MODID\n    library icepower\n    uuid bf51a790-512b-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
-            sed -i "s/^effects {/effects {\n  icepower_null { #$MODID\n    library icepower\n    uuid 63509430-52aa-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+#            sed -i "s/^effects {/effects {\n  icepower_test { #$MODID\n    library icepower\n    uuid e5456320-5391-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+#            sed -i "s/^effects {/effects {\n  icepower_load { #$MODID\n    library icepower\n    uuid bf51a790-512b-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+#            sed -i "s/^effects {/effects {\n  icepower_null { #$MODID\n    library icepower\n    uuid 63509430-52aa-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
 #            sed -i "s/^effects {/effects {\n  icepower_eq { #$MODID\n    library icepower\n    uuid 50dbef80-4ad4-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
             sed -i "s/^effects {/effects {\n  icepower_algo { #$MODID\n    library icepower\n    uuid f1c02420-777f-11e3-981f-0800200c9a66\n  } #$MODID/g" $FILE;;
     *.xml) sed -i "/icepower/d" $FILE

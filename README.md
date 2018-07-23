@@ -5,7 +5,7 @@
  - Flash module via flashfire will not work. please use zipname to install with flashfire. Otherwise use twrp or magisk
 
 ## Troubleshooting
- - If stuck at the bootloader simply reboot once and see if boot resumes. If boot does not occur, power down/enter fastboot then boot again.
+ - If stuck at boot, simply reboot once and see if boot resumes.
  - if flash fails, provide recovery logs .
  - if boot fails, provide device logs and magisk logs.
  - always make a nandroid backup before flashing test-builds.
@@ -26,7 +26,11 @@ v7.5
  - Fix configs not working again (accidentally deleted stock config)
  - Make install.sh more effiecent (thanks zackptg5)
  - Fix the massive service.sh to only include the needed sepolicies
- 
+ - Fix zip nameing scheme for devices with non-working volume keys or no custom recovery (flashify)
+  - options to change the name of the zip are : 
+    - _pure_conf1 _pure_conf2 _pure_conf3 _pure_conf4 _pure_conf0
+    - _icew_conf1 _icew_conf2 _icew_conf3 _icew_conf4 _icew_conf0
+    - all options can be all lowercase, all uppercase or first letter uppercase
 v7.4
  - Unity 1.5.5
 
@@ -40,7 +44,6 @@ v7.2
  - forgot to delete .aml.sh
  - fix killall to not lose sound (sorry about that)
  - Added a no config option
- - hopefully fix config/preset stacking in module.prop
  - Add a new Preset (Crystalline) thanks to @DeadRoEd
  - Fix menu not clearing properally
  - add colors,dividers,titles
