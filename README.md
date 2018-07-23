@@ -23,13 +23,15 @@
 ## Changelog
 
 v7.5
+ - FINALLY STABLE AS CAN BE!!!!
+ - Finally fixed sound on boot (thanks Rey for testing)
  - Fix configs not working again (accidentally deleted stock config)
  - Make install.sh more effiecent (thanks zackptg5)
  - Fix the massive service.sh to only include the needed sepolicies
  - Fix zip nameing scheme for devices with non-working volume keys or no custom recovery (flashify)
   - options to change the name of the zip are : 
     - _pure_conf1 _pure_conf2 _pure_conf3 _pure_conf4 _pure_conf0
-    - _icew_conf1 _icew_conf2 _icew_conf3 _icew_conf4 _icew_conf0
+    - _full_conf1 _full_conf2 _full_conf3 _full_conf4 _full_conf0
     - all options can be all lowercase, all uppercase or first letter uppercase
 v7.4
  - Unity 1.5.5
