@@ -266,6 +266,8 @@ if $FULL; then
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
     mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
+    rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
+    cp -f $INSTALLER/custom/Nougat/lib/$ABI/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   fi
   if [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ]; then

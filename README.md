@@ -22,6 +22,10 @@
 
 ## Changelog
 
+v7.7
+ - Forgot a su -c in Service.sh
+ - Fix Audiowizard not working on Nougat devices
+
 v7.6
  - Forgot some stuff in terminal script
 

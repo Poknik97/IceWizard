@@ -25,7 +25,7 @@ else
 fi
 
 
-killall dk.icepower.icesound
+  su -c killall dk.icepower.icesound
 	for i in "${PLAYERS[@]}"; do
 		if grep -qF $i $XML; then
       echo " "
