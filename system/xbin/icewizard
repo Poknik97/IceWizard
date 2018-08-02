@@ -599,7 +599,7 @@ read -r choice
   case $choice in
 		t|T) echo "${W}Test Compatibility selected...${N}"
 		  killall dk.icepower.icesound
-			sleep 7
+			sleep 5
 			echo "${G}If You Heard a Beep Or Audio Cut Out, Then This is the Config You Need To Use/is Compatible With your device${N}"
 			break
 		  ;;
@@ -649,6 +649,7 @@ kill_all_command() {
   echo " "
   echo "${B}   Stopping ICEsound...${N}"
     stop dk.icepower.icesound
+		stop audioserver
     ProgressBar 2 3
   echo " "
   echo "${B}   Restarting services...${N}"
@@ -657,6 +658,8 @@ kill_all_command() {
   echo "${B}   Starting ICEsound...${N}"
     start dk.icepower.icesound
     sleep 2
+		start audioserver
+		sleep 4
   echo " "
 	ProgressBar 3 3
 	echo " "
