@@ -11,3 +11,5 @@ if ! $MAGISK || $SYSOVERRIDE; then
     esac
   done
 fi
+
+rm -f $SDCARD/IceWizard

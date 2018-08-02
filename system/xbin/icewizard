@@ -279,6 +279,8 @@ PS=$SDCARD/IceWizard/Presets/PURESTUFF/icesoundpresets.def
 SHAT=$SDCARD/IceWizard/Presets/SHAT/icesoundpresets.def
 WIDE=$SDCARD/IceWizard/Presets/WIDECLARITY/icesoundpresets.def
 STOCK=$SDCARD/IceWizard/Presets/STOCK/icesoundpresets.def
+ICEO=$SDCARD/IceWizard/LibOreo/libicepower.so
+ICEN=$SDCARD/IceWizard/LibNougat/libicepower.so
 PROP1=ro.asus.aw.mode.path=1
 PROP2=ro.asus.aw.mode.path=0
 PROP3=ro.asus.aw.mode.path=6
@@ -697,20 +699,85 @@ read -r choice
     1) echo "${B}Prop Mode 1 selected...${N}"
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=1/' $PROP
       echo "${G}Device will now hot reboot${N}"
+			sleep 8
       setprop ctl.restart zygote
       break
       ;;
     2) echo "${B}Prop Mode 2 selected...${N}"
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=0/' $PROP
 		  echo "${G}Device will now hot reboot${N}"
+			sleep 8
 		  setprop ctl.restart zygote
 		  break
       ;;
     3) echo "${B}Prop Mode 3 selected...${N}"
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=6/' $PROP
 		  echo "${G}Device will now hot reboot${N}"
+			sleep 8
 		  setprop ctl.restart zygote
       break
+      ;;
+    x|X) echo "${C}Returning to Menu${N}"
+      menu
+      ;;
+    q|Q) echo "${R}quiting!${N}"
+      clear
+      quit
+      ;;
+    *) echo "${Y}item not available! Try Again${N}"
+      clear
+      ;;
+  	esac
+  done
+echo -n "${R}Return to menu? < y | n > : ${N}"
+read -r mchoice
+[ "$mchoice" = "y" ] && menu || clear && quit
+}
+
+lib_menu () {
+	choice=""
+
+while [ "$choice" != "q" ]
+  do
+    clear
+  	echo "$div"
+    title_div "${G}ICESOUND LIBS${N}"
+    echo "$div"
+    echo ""
+    echo "${B}FULL ICEWIZARD (UI) ON NOUGAT ONLY!!!!!${N}"
+    echo "${B}If AudioWizard is not changing sound,
+		Then please change the libicepower.so to the oreo or nougat one. 
+		The nougat one is installed by default during installion.
+		Some nougat devices can use the oreo one and others the nougat one${N}"		
+  	echo "${B}Please make a selection!${N}"
+    echo "$div"
+  	echo -e "${W}1)${N} ${B}Oreo libicepower.so${N}"
+  	echo -e "${W}2)${N} ${B}Nougat libicepower.so${N}"
+    echo "$div"
+  	echo -e "${W}x)${N} ${B}Return to Menu${N}"
+  	echo -e "${W}q)${N} ${B}Quit${N}"
+    echo "$div"
+  	echo -n "${R}[CHOOSE] :  ${N}"
+
+read -r choice
+  case $choice in
+    1) echo "${B}Oreo libicepower.so selected...${N}"
+      rm -f $MODPATH/system/lib/soundfx/libicepower.so
+			cp $LIBO $MODPATH/system/lib/soundfx/libicepower.so
+			sed -ri "s/Lib [^)]+\)/Lib (OREO)/" $MODPROP
+      echo "${G}Device will now hot reboot${N}"
+			sleep 8
+      setprop ctl.restart zygote
+      break
+      ;;
+    2) echo "${B}Nougat libicepower.so selected...${N}"
+      rm -f $MODPATH/system/lib/soundfx/libicepower.so
+			cp $LIBN $MODPATH/system/lib/soundfx/libicepower.so
+			sed -ri "s/Lib [^)]+\)/Lib (NOUGAT)/" $MODPROP
+		  echo "${G}Device will now hot reboot${N}"
+			sleep 8
+		  setprop ctl.restart zygote
+		  break
       ;;
     x|X) echo "${C}Returning to Menu${N}"
       menu
@@ -744,7 +811,11 @@ while [ "$choice" != "q" ]
     echo -e "${W}P)${N} ${B}Presets${N}"
     echo -e "${W}K)${N} ${B}KillAll${N}"
     [ -d "$MODPATH/system/app/AudioWizardView" ] && echo -e "${W}I)${N} ${B}IceWizard Props${N}"
-    echo -e "${W}L)${N} ${B}Logs${N}"
+    if [ $API -le 25 ]; then
+		echo -e "${G}If AudioWizard Presets dont change sound then change the libicepower.so and reboot${N}"
+		echo -e "${W}N)${N} ${B}Change libicepower.so"
+		fi
+		echo -e "${W}L)${N} ${B}Logs${N}"
     echo -e "${W}Q)${N} ${B}Quit${N}"
     echo "$div"
     echo -n "${R}[CHOOSE] :  ${N}"
@@ -763,6 +834,9 @@ read -r choice
     i|I) echo "${W}IceWizard Props Selected...${N}"
       prop_menu
       ;;
+		n|N) echo "${C}Change libicepower.so Selected...${N}"
+		  lib_menu
+			;;
     l|L) echo "${V}Uploding Logs to termbin...${N}"
       upload_logs
       ;;

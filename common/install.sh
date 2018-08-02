@@ -264,12 +264,15 @@ if $FULL; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+		sed -ri "s/version=(.*)/version=\1 Lib (NOUGAT)/"
     mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
     rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
     cp -f $INSTALLER/custom/Nougat/lib/$ABI/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
-  fi
+		ui_print "   IF AUDIOWIZARD DOES NOT PROCESS/CHANGE AUDIO WHEN CHANGING PRESETS IN THE
+		AUDIOWIZARD APP, PLEASE RUN su icewizard IN TERMINAL AND CHOOSE ICESOUND LIBS AND SWITCH TO THE OREO LIB"
+	fi
   if [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ]; then
     ui_print "  x86 device detected!"
     ui_print "   Installing x86 addon content!"
@@ -293,14 +296,14 @@ for OFILE in ${CFGS}; do
     *.conf) sed -i "/icepower {/,/}/d" $FILE
             sed -i "/icepower_algo {/,/}/d" $FILE
 #            sed -i "/icepower_eq {/,/}/d" $FILE
-#            sed -i "/icepower_null {/,/}/d" $FILE
-#            sed -i "/icepower_load {/,/}/d" $FILE
-#            sed -i "/icepower_test {/,/}/d" $FILE
+            sed -i "/icepower_null {/,/}/d" $FILE
+            sed -i "/icepower_load {/,/}/d" $FILE
+            sed -i "/icepower_test {/,/}/d" $FILE
             sed -i "/^output_session_processing {/,/^}/ {/music_helper {/,/}/ s/^/#$MODID/g}" $FILE
             sed -i "s/^libraries {/libraries {\n  icepower { #$MODID\n    path $LIBPATCH\/lib\/soundfx\/libicepower.so\n  } #$MODID/g" $FILE
-#            sed -i "s/^effects {/effects {\n  icepower_test { #$MODID\n    library icepower\n    uuid e5456320-5391-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
-#            sed -i "s/^effects {/effects {\n  icepower_load { #$MODID\n    library icepower\n    uuid bf51a790-512b-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
-#            sed -i "s/^effects {/effects {\n  icepower_null { #$MODID\n    library icepower\n    uuid 63509430-52aa-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+            sed -i "s/^effects {/effects {\n  icepower_test { #$MODID\n    library icepower\n    uuid e5456320-5391-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+            sed -i "s/^effects {/effects {\n  icepower_load { #$MODID\n    library icepower\n    uuid bf51a790-512b-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
+            sed -i "s/^effects {/effects {\n  icepower_null { #$MODID\n    library icepower\n    uuid 63509430-52aa-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
 #            sed -i "s/^effects {/effects {\n  icepower_eq { #$MODID\n    library icepower\n    uuid 50dbef80-4ad4-11e3-8f96-0800200c9a66\n  } #$MODID/g" $FILE
             sed -i "s/^effects {/effects {\n  icepower_algo { #$MODID\n    library icepower\n    uuid f1c02420-777f-11e3-981f-0800200c9a66\n  } #$MODID/g" $FILE;;
     *.xml) sed -i "/icepower/d" $FILE
@@ -319,6 +322,7 @@ for OFILE in ${CFGS}; do
     esac
 done
 
+ui_print " " 
 ui_print "THANKS FOR USING ICESOUND AND THE SUPPORT"
 ui_print "   ENJOY AWESOME SOUND"
 ui_print " "

@@ -22,6 +22,9 @@
 
 ## Changelog
 
+v7.8
+ - Add changing between oreo and nougat libicepower to terminal script to fix some nougat devices having a non working audiowizard
+
 v7.7
  - Forgot a su -c in Service.sh
  - Fix Audiowizard not working on Nougat devices
