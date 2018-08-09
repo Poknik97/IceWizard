@@ -207,7 +207,7 @@ if [ $SDCARD/IceWizard ]; then
   ui_print "   All Custom Presets and Confgs Have Been"
   ui_print "    Successfully Copied to $SDCARD"
 fi
-;., 
+
 if $CONF1; then
   ui_print " - Config1 selected."
   sed -ri "s/version=(.*)/version=\1 Config (1)/" $INSTALLER/module.prop
