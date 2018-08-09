@@ -22,6 +22,11 @@
 
 ## Changelog
 
+v7.9
+ - fix typo which prevented crystilline preset from working correctly
+ - hopefully fix cmd error on enforcing
+ - add new wideclarity2 preset thanks to @DeadRoEd
+
 v7.8
  - Add changing between oreo and nougat libicepower to terminal script to fix some nougat devices having a non working audiowizard
 

@@ -265,6 +265,7 @@ mod_head() {
 # > Rather than editing the default vars above.
 
 SDCARD=/storage/emulated/0
+WIDE2=$SDCARD/IceWizard/Presets/WIDE2/icesoundpresets.def
 CRYS=$SDCARD/IceWizard/Presets/CRYSTALLINE/icesoundpresets.def
 BATH=$SDCARD/IceWizard/Presets/BATHSALTS/icesoundpresets.def
 DEEP=$SDCARD/IceWizard/Presets/DEEPBASS/icesoundpresets.def
@@ -409,20 +410,21 @@ while [ "$choice" != "q" ];
     echo "${B}Please make a selection!${N}"
     echo "$div"
     echo ""
-    echo -e "${W}0)${N} ${B}Crystalline${N}"
-    echo -e "${W}1)${N} ${B}Bathsalts${N}"
-    echo -e "${W}2)${N} ${B}DeepBass${N}"
-    echo -e "${W}3)${N} ${B}Default${N}"
-    echo -e "${W}4)${N} ${B}Holy${N}"
-    echo -e "${W}5)${N} ${B}Krazy${N}"
-    echo -e "${W}6)${N} ${B}Movie${N}"
-    echo -e "${W}7)${N} ${B}Music${N}"
-    echo -e "${W}8)${N} ${B}Outdoors${N}"
-    echo -e "${W}9)${N} ${B}Pure${N}"
-    echo -e "${W}10)${N} ${B}Purestuff${N}"
-    echo -e "${W}11)${N} ${B}Shat${N}"
-    echo -e "${W}12)${N} ${B}Wideclarity${N}"
-    echo -e "${W}13)${N} ${B}Stock${N}"
+    echo -e "${W}0)${N} ${B}Crystalline by @DeadRoEd${N}"
+		echo -e "${W}1)${N} ${B}WideClarity2 by @DeadRoEd${N}"
+    echo -e "${W}2)${N} ${B}Bathsalts${N}"
+    echo -e "${W}3)${N} ${B}DeepBass${N}"
+    echo -e "${W}4)${N} ${B}Default${N}"
+    echo -e "${W}5)${N} ${B}Holy${N}"
+    echo -e "${W}6)${N} ${B}Krazy${N}"
+    echo -e "${W}7)${N} ${B}Movie${N}"
+    echo -e "${W}8)${N} ${B}Music${N}"
+    echo -e "${W}9)${N} ${B}Outdoors${N}"
+    echo -e "${W}10)${N} ${B}Pure${N}"
+    echo -e "${W}11)${N} ${B}Purestuff${N}"
+    echo -e "${W}12)${N} ${B}Shat${N}"
+    echo -e "${W}13)${N} ${B}Wideclarity${N}"
+    echo -e "${W}14)${N} ${B}Stock${N}"
     echo -e "${W}r)${N} ${B}Return to Menu${N}"
     echo -e "${W}q)${N} ${B}Quit${N}"
     echo "$div"
@@ -435,11 +437,20 @@ read -r choice
       cp -rf $CRYS $MODPATH/system/etc
 			cp -rf $CRYS $MODPATH/system/vendor/etc
       set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
-			set_perm $MODPATH/system/vendor/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
       kill_all_command
       break
       ;;
-    '1') echo "${G}Bathsalts selected...${N}"
+		'1') echo "${G}WideClarity2 selected...${N}"
+      sed -ri "s/Preset [^)]+\)/Preset (WideClarity2)/" $MODPROP
+      cp -rf $WIDE2 $MODPATH/system/etc
+			cp -rf $WIDE2 $MODPATH/system/vendor/etc
+      set_perm $MODPATH/system/etc/icesoundpresets.def 0 0 0755
+			set_perm $MODPATH/system/vendor/etc/icesoundpresets.def 0 0 0755
+      kill_all_command
+      break
+      ;;
+    '2') echo "${G}Bathsalts selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (BathSalts)/" $MODPROP
       cp -rf $BATH $MODPATH/system/etc
 			cp -rf $BATH $MODPATH/system/vendor/etc
@@ -448,7 +459,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '2') echo "${G}DeepBass selected...${N}"
+    '3') echo "${G}DeepBass selected...${N}"
 	    sed -ri "s/Preset [^)]+\)/Preset (DEEPBASS)/" $MODPROP
       cp -rf $DEEP $MODPATH/system/etc
 			cp -rf $DEEP $MODPATH/system/vendor/etc 
@@ -457,7 +468,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '3') echo "${G}Default selected...${N}"
+    '4') echo "${G}Default selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (DEFAULT)/" $MODPROP
       cp -rf $DEF $MODPATH/system/etc
 			cp -rf $DEF $MODPATH/system/vendor/etc 
@@ -466,7 +477,7 @@ read -r choice
       kill_all_command
       break
       ;;
-	  '4') echo "${G}Holy selected...${N}"
+	  '5') echo "${G}Holy selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (HOLY)/" $MODPROP
       cp -rf $HOLY $MODPATH/system/etc
 			cp -rf $HOLY $MODPATH/system/vendor/etc
@@ -475,7 +486,7 @@ read -r choice
       kill_all_command
       break
       ;;
-	  '5') echo "${G}Krazy selected...${N}"
+	  '6') echo "${G}Krazy selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (KRAZY)/" $MODPROP
       cp -rf $KZY $MODPATH/system/etc
 			cp -rf $KZY $MODPATH/system/vendor/ETC
@@ -484,7 +495,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '6') echo "${G}Movie selected...${N}"
+    '7') echo "${G}Movie selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (MOVIE)/" $MODPROP
       cp -rf $MOV $MODPATH/system/etc
 			cp -rf $MOV $MODPATH/system/vendor/etc
@@ -493,7 +504,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '7') echo "${G}Music selected...${N}"
+    '8') echo "${G}Music selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (MUSIC)/" $MODPROP
       cp -rf $MUS $MODPATH/system/etc
 			cp -rf $MUS $MODPATH/system/vendor/etc
@@ -502,7 +513,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '8') echo "${G}Outdoors selected...${N}"
+    '9') echo "${G}Outdoors selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (OUTDOORS)/" $MODPROP
       cp -rf $OUT $MODPATH/system/etc
 			cp -rf $OUT $MODPATH/system/vendor/etc
@@ -511,7 +522,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '9') echo "${G}Pure selected...${N}"
+    '10') echo "${G}Pure selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (PURE)/" $MODPROP
       cp -rf $PURE $MODPATH/system/etc
 			cp -rf $PURE $MODPATH/system/vendor/etc
@@ -520,7 +531,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '10') echo "${G}Purestuff selected...${N}"
+    '11') echo "${G}Purestuff selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (PURESTUFF)/" $MODPROP
       cp -rf $PS $MODPATH/system/etc
 			cp -rf $PS $MODPATH/system/vendor/etc
@@ -529,7 +540,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '11') echo "${G}Shat selected...${N}"
+    '12') echo "${G}Shat selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (SHAT)/" $MODPROP
       cp -rf $SHAT $MODPATH/system/etc
 			cp -rf $SHAT $MODPATH/system/vendor/etc
@@ -538,7 +549,7 @@ read -r choice
       kill_all_command
       break
       ;;
-    '12') echo "${G}Wideclarity selected...${N}"
+    '13') echo "${G}Wideclarity selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (WIDE)/" $MODPROP
       cp -rf $WIDE $MODPATH/system/etc
 			cp -rf $WIDE $MODPATH/system/vendor/etc
@@ -547,7 +558,7 @@ read -r choice
       kill_all_command
       break
       ;;
-		'13') echo "${G}Stock selected...${N}"
+		'14') echo "${G}Stock selected...${N}"
       sed -ri "s/Preset [^)]+\)/Preset (STOCK)/" $MODPROP
       cp -rf $STOCK $MODPATH/system/etc
 			cp -rf $STOCK $MODPATH/system/vendor/etc
@@ -750,7 +761,7 @@ while [ "$choice" != "q" ]
     echo "${B}FULL ICEWIZARD (UI) ON NOUGAT ONLY!!!!!${N}"
     echo "${B}If AudioWizard is not changing sound,
 		Then please change the libicepower.so to the oreo or nougat one. 
-		The nougat one is installed by default during installion.
+		The oreo one is installed by default during installion.
 		Some nougat devices can use the oreo one and others the nougat one${N}"		
   	echo "${B}Please make a selection!${N}"
     echo "$div"

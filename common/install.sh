@@ -207,7 +207,7 @@ if [ $SDCARD/IceWizard ]; then
   ui_print "   All Custom Presets and Confgs Have Been"
   ui_print "    Successfully Copied to $SDCARD"
 fi
-
+;., 
 if $CONF1; then
   ui_print " - Config1 selected."
   sed -ri "s/version=(.*)/version=\1 Config (1)/" $INSTALLER/module.prop
@@ -249,12 +249,14 @@ if $FULL; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     cp -rf $INSTALLER/custom/Addon/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   elif [ $API -eq 23 ]; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
     cp -f $INSTALLER/custom/Nougat/lib/$ABI/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     mkdir $INSTALLER/system/app
@@ -267,16 +269,15 @@ if $FULL; then
 		sed -ri "s/version=(.*)/version=\1 Lib (NOUGAT)/"
     mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
-    rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
-    cp -f $INSTALLER/custom/Nougat/lib/$ABI/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
 		ui_print "   IF AUDIOWIZARD DOES NOT PROCESS/CHANGE AUDIO WHEN CHANGING PRESETS IN THE
-		AUDIOWIZARD APP, PLEASE RUN su icewizard IN TERMINAL AND CHOOSE ICESOUND LIBS AND SWITCH TO THE OREO LIB"
+		AUDIOWIZARD APP, PLEASE RUN su icewizard IN TERMINAL AND CHOOSE ICESOUND LIBS AND SWITCH TO THE NOUGAT LIB"
 	fi
   if [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ]; then
     ui_print "  x86 device detected!"
     ui_print "   Installing x86 addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
+		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     cp -rf $INSTALLER/custom/WizardX86/app $INSTALLER/system
     cp -f $INSTALLER/custom/Nougat/lib/x86/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
