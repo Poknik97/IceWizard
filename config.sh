@@ -115,7 +115,7 @@ set_permissions() {
   $MAGISK && set_perm_recursive $MODPATH 0 0 0755 0644
 
   # CUSTOM PERMISSIONS
-  [ -f "$UNITY/system/bin/audioserver" ] && set_perm $UNITY/system/bin/audioserver 0 2000 0755 u:object_r:audioserver_exec:s0
+  #[ -f "$UNITY/system/bin/audioserver" ] && set_perm $UNITY/system/bin/audioserver 0 2000 0755 u:object_r:audioserver_exec:s0
   set_perm $UNITY/system/xbin/icewizard 0 2000 0755
   # Some templates if you have no idea what to do:
   # Note that all files/folders have the $UNITY prefix - keep this prefix on all of your files/folders

@@ -315,6 +315,10 @@ VEN=/system/vendor
 SYS=/system
 if [ -f $VEN/build.prop ]; then BUILDS="/system/build.prop $VEN/build.prop"; else BUILDS="/system/build.prop"; fi
 
+reboot () {
+	su -c 'svc power reboot'
+}
+
 config_menu() {
 choice=""
 
@@ -343,7 +347,11 @@ read -r choice
   case $choice in
     '1') echo "${G}Config 1 selected...${N}"
       cp -rf $CONF1 $MODPATH/system/etc
-      sed -ri "s/Config([0-9])/Config (1)/" $MODPROP
+      sed -ri "s/Config([0-9])/Config (1)/" $MODPROP 
+			sed -ri "s/Config=(.*)/Config=\1 Config = 1/" $MODPATH/system/etc/icesoundconfig.def
+			if [ $API -le 25 ] || [ $API -eq 23 ] || [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ] ; then
+			sed -i "s/icesound_no_aw true/icesound_no_aw false/" $MODPATH/system/etc/icesoundconfig.def
+			fi
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 1 Applied Successfully...${N}"
@@ -352,6 +360,10 @@ read -r choice
     '2') echo "${G}Config 2 selected...${N}"
       cp -rf $CONF2 $MODPATH/system/etc
       sed -ri "s/Config([0-9])/Config (2)/" $MODPROP
+			sed -ri "s/Config=(.*)/Config=\1 Config = 2/" $MODPATH/system/etc/icesoundconfig.def
+			if [ $API -le 25 ] || [ $API -eq 23 ] || [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ] ; then
+			sed -i "s/icesound_no_aw true/icesound_no_aw false/" $MODPATH/system/etc/icesoundconfig.def
+			fi
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 2 Applied Successfully...${N}"
@@ -360,6 +372,10 @@ read -r choice
     '3') echo "${G}Config 3 selected...${N}"
       cp -rf $CONF3 $MODPATH/system/etc
       sed -ri "s/Config([0-9])/Config (3)/" $MODPROP
+			sed -ri "s/Config=(.*)/Config=\1 Config = 3/" $MODPATH/system/etc/icesoundconfig.def
+			if [ $API -le 25 ] || [ $API -eq 23 ] || [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ] ; then
+			sed -i "s/icesound_no_aw true/icesound_no_aw false/" $MODPATH/system/etc/icesoundconfig.def
+			fi
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 3 Applied Successfully...${N}"
@@ -368,6 +384,10 @@ read -r choice
 		'4') echo "${G}Config 4 selected...${N}"
       cp -rf $CONF4 $MODPATH/system/etc
       sed -ri "s/Config([0-9])/Config (4)/" $MODPROP
+			sed -ri "s/Config=(.*)/Config=\1 Config = 4/" $MODPATH/system/etc/icesoundconfig.def
+			if [ $API -le 25 ] || [ $API -eq 23 ] || [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ] ; then
+			sed -i "s/icesound_no_aw true/icesound_no_aw false/" $MODPATH/system/etc/icesoundconfig.def
+			fi
       set_perm $MODPATH/system/etc/icesoundconfig.def 0 0 0755
       kill_all_command
       echo "${G}Config 4 Applied Successfully...${N}"
@@ -619,7 +639,7 @@ read -r choice
 		  break
 		  ;;
 		r|R) echo "${R}Reboot selected...${N}"
-		  setprop sys.powerctl reboot
+		  reboot
 		  sleep 15
 		  echo "${W}Reboot Failed! Please Reboot Manually${N}"
 		  ;;
@@ -671,6 +691,7 @@ kill_all_command() {
     sleep 2
 		start audioserver
 		sleep 4
+		killall dk.icepower.icesound
   echo " "
 	ProgressBar 3 3
 	echo " "
@@ -714,21 +735,21 @@ read -r choice
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=1/' $PROP
       echo "${G}Device will now hot reboot${N}"
 			sleep 8
-      setprop ctl.restart zygote
+      reboot
       break
       ;;
     2) echo "${B}Prop Mode 2 selected...${N}"
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=0/' $PROP
 		  echo "${G}Device will now hot reboot${N}"
 			sleep 8
-		  setprop ctl.restart zygote
+		  reboot
 		  break
       ;;
     3) echo "${B}Prop Mode 3 selected...${N}"
       sed -i -e 's/ro.asus.aw.mode/ro.asus.aw.mode=6/' $PROP
 		  echo "${G}Device will now hot reboot${N}"
 			sleep 8
-		  setprop ctl.restart zygote
+		  reboot
       break
       ;;
     x|X) echo "${C}Returning to Menu${N}"
@@ -779,18 +800,20 @@ read -r choice
       rm -f $MODPATH/system/lib/soundfx/libicepower.so
 			cp $LIBO $MODPATH/system/lib/soundfx/libicepower.so
 			sed -ri "s/Lib [^)]+\)/Lib (OREO)/" $MODPROP
+			set_perm $MODPATH/system/lib/soundfx/libicepower.so 0 0 0644
       echo "${G}Device will now hot reboot${N}"
 			sleep 8
-      setprop ctl.restart zygote
+      reboot
       break
       ;;
     2) echo "${B}Nougat libicepower.so selected...${N}"
       rm -f $MODPATH/system/lib/soundfx/libicepower.so
 			cp $LIBN $MODPATH/system/lib/soundfx/libicepower.so
 			sed -ri "s/Lib [^)]+\)/Lib (NOUGAT)/" $MODPROP
+			set_perm $MODPATH/system/lib/soundfx/libicepower.so 0 0 0644
 		  echo "${G}Device will now hot reboot${N}"
 			sleep 8
-		  setprop ctl.restart zygote
+			reboot
 		  break
       ;;
     x|X) echo "${C}Returning to Menu${N}"

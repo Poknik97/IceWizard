@@ -242,15 +242,16 @@ if $FULL; then
   sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
   sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
   cp -rf $INSTALLER/custom/AddonApp/AudioWizard $INSTALLER/system/priv-app
-  mkdir -p $INSTALLER/system/app
-  cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/app
-  cp -f $INSTALLER/custom/AddonApp/permissions/privapp-permissions-com.asus.maxxaudio.xml $INSTALLER/system/etc/permissions/privapp-permissions-com.asus.maxxaudio.xml
+  #mkdir -p $INSTALLER/system/app
+  #cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/app
+	cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/priv-app
+  cp -f $INSTALLER/custom/AddonApp/permissions $INSTALLER/system/etc
   if [ $API -ge 26 ]; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
-    cp -rf $INSTALLER/custom/Addon/system $INSTALLER
+    cp -rf $INSTALLER/custom/Addon $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   elif [ $API -eq 23 ]; then
     ui_print "  Full ICEWizard compatible device detected!"
@@ -259,7 +260,7 @@ if $FULL; then
 		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
     cp -f $INSTALLER/custom/Nougat/lib/$ABI/libicepower.so $INSTALLER/system/lib/soundfx/libicepower.so
-    mkdir $INSTALLER/system/app
+    #mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   elif [ $API -le 25 ]; then
@@ -267,8 +268,8 @@ if $FULL; then
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/version=(.*)/version=\1 Lib (NOUGAT)/"
-    mkdir $INSTALLER/system/app
-    cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
+    #mkdir $INSTALLER/system/app
+    cp -rf $INSTALLER/custom/AddonN $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
 		ui_print "   IF AUDIOWIZARD DOES NOT PROCESS/CHANGE AUDIO WHEN CHANGING PRESETS IN THE
 		AUDIOWIZARD APP, PLEASE RUN su icewizard IN TERMINAL AND CHOOSE ICESOUND LIBS AND SWITCH TO THE NOUGAT LIB"
