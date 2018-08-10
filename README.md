@@ -22,6 +22,13 @@
 
 ## Changelog
 
+v8.0
+ - Fix nougat bug with switching configs in terminal
+ - Put all apks back in priv-app
+ - new force reboot option using svc instead of setprop
+ - hopefully fix nougat lib switch
+
+
 v7.9
  - fix typo which prevented crystilline preset from working correctly
  - hopefully fix cmd error on enforcing
