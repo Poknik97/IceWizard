@@ -356,6 +356,7 @@ com.shaiban.audioplayer.mplayer
 in.krosbits.musicolet
 com.simplecity.amp_pro
 com.asus.music
+com.amazon.mp3
 )
 ASUS=com.asus.maxxaudio.audiowizard
 XML=/data/system/packages.xml

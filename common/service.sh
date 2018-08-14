@@ -65,6 +65,7 @@ com.shaiban.audioplayer.mplayer
 in.krosbits.musicolet
 com.simplecity.amp_pro
 com.asus.music
+com.amazon.mp3
 )
 XML=/data/system/packages.xml
 

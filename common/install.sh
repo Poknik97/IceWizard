@@ -263,7 +263,7 @@ if $FULL; then
     mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
-  elsif [ $API -le 25 ]; then
+  elif [ $API -le 25 ]; then
     ui_print "  Full ICEWizard compatible device detected!"
     ui_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
