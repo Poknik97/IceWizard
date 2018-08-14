@@ -22,6 +22,13 @@
 
 ## Changelog
 
+v8.1
+ - Fix nougat Audiowizard crashing
+ - Fix cmd error/true devpts
+ - Added more music players
+ - Fix sepolicies by creating non-existent ones
+ 
+
 v8.0
  - Fix nougat bug with switching configs in terminal
  - Put all apks back in priv-app

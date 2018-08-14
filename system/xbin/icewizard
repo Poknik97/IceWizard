@@ -299,21 +299,83 @@ com.pandora.android
 com.apple.android.music
 com.clearchannel.iheartradio.controller
 com.aspiro.tidal
+org.lineageos.eleven
+com.kabouzeid.gramophon
+com.tbig.playerprotrial
+com.thrift.pulsar
+com.rhmsoft.pulsar
+com.sonyericsson.music
+com.kodarkooperativet.blackplayerfree
+com.kodarkooperativet.blackplayerex
+com.Project100Pi.themusicplayer
+deezer.android.app
+org.schabi.newpipe
+au.com.shiftyjelly.pocketcasts
+com.doubleTwist.androidPlayer
+com.doubleTwist.androidPlayerPro
+com.maxfour.music
+com.onkyo.jp.musicplayer
+org.moire.ultrasonic
+com.jetappfactory.jetaudio
+com.jetappfactory.jetaudioplus
+com.mrgreensoft.nrg.player
+org.fitchfamily.android.symphony
+com.google.android.youtube
+com.google.android.apps.podcasts
+io.stellio.player
+org.videolan.vlc
+another.music.player
+com.poupa.vinylmusicplayer
+com.n7mobile.player
+net.programmierecke.radiodroid2
+com.tbig.playerpro
+org.gateshipone.odyssey
+pt.ipleiria.mymusicqoe
+org.deadbeef.android
+ch.blinkenlights.android.vanilla
+com.doubleTwist.cloudPlayer
+com.spotify.lite
+com.soundcloud.android
+com.bandcamp.android
+com.rhapsody.napster
+ru.yandex.music
+ru.yandex.radio
+com.zvoo.openplay
+am.radiogr
+com.zvooq.openplay
+tunein.player
+radiotime.player
+com.sec.android.app.music
+com.uma.musicvk
+com.mixcloud.player
+com.andrew.apollo
+de.xorg.henrymp.backport
+com.kapp.youtube.final
+mp3player.audioplayer.audiobeats
+com.shaiban.audioplayer.mplayer
+in.krosbits.musicolet
+com.simplecity.amp_pro
+com.asus.music
 )
-#SPOT=com.spotify.music
-#GPM=com.google.android.music
-#NEU=com.neutroncode.mp
-#NEU2=com.neutroncode.mpeval
-#AMP=com.maxmpz.audioplayer
-#PAN=com.pandora.android
-#APPL=com.apple.android.music
-#HEAR=com.clearchannel.iheartradio.controller
-#TID=com.aspiro.tidal
 ASUS=com.asus.maxxaudio.audiowizard
 XML=/data/system/packages.xml
 VEN=/system/vendor
 SYS=/system
 if [ -f $VEN/build.prop ]; then BUILDS="/system/build.prop $VEN/build.prop"; else BUILDS="/system/build.prop"; fi
+
+enforce() {
+getenforce >> /data/media/0/iceenforce.txt
+}
+
+enforce2() {
+if grep -q Enforcing /data/media/0/iceenforce.txt; then
+ setenforce 1
+else 
+ setenforce 0
+fi
+
+rm -f /data/media/0/iceenforce.txt
+}
 
 reboot () {
 	su -c 'svc power reboot'
@@ -663,10 +725,13 @@ read -r mchoice
 
 #Kill commands to apply selected config
 kill_all_command() {
+	enforce
 	echo "${B}   Please Wait for Background Services to be Restarted...${N}"
   echo " "
 	echo "${B}   Stopping services...${N}"
 	ProgressBar 1 3
+
+setenforce 0
 
 	for i in "${PLAYERS[@]}"; do
 		if grep -qF $i $XML; then
@@ -691,7 +756,7 @@ kill_all_command() {
     sleep 2
 		start audioserver
 		sleep 4
-		killall dk.icepower.icesound
+		enforce2
   echo " "
 	ProgressBar 3 3
 	echo " "
