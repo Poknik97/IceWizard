@@ -23,21 +23,21 @@ if [ "$ROOT" ]; then mount -o rw,remount $ROOT; else mount -o rw,remount /; fi
 
 # ln -sf $ETC/select_mic.sh /data/data/select_mic
 # ln -sf $ETC/select_output.sh /data/data/select_output
-
-if [ ! -d "$ROOT/odm" ]; then
-
-  mkdir -p $ROOT/odm/etc
-  chmod 0755 $ROOT/odm $ROOT/odm/etc
-  chown 1000.1000 $ROOT/odm $ROOT/odm/etc
-  chcon -R u:object_r:system_file:s0 $ROOT/odm
   
-  AP="$(find /system /vendor -type f -name "audio_policy_configuration*.xml" | head -n 1)"
-  if [ "$(dirname $AP)" == "$VEN/etc/audio" ]; then INC="s|.*=\"(/.*/[a-zA-Z0-9_]*.xml)\".*|\1|g"; else INC="s|.*=\"([a-zA-Z0-9_]*.xml)\".*|`dirname $AP`/\1|g"; fi
+  AP="$(find /system /vendor -type f -name "audio_policy_configuration*.xml" | head -n 1 2>/dev/null)"
+
+  if [ ! -d "$ROOT/odm" ] && [ "$AP" ]; then
+  mkdir -p /odm/etc
+  chmod 0755 /odm /odm/etc
+  chown 1000.1000 /odm /odm/etc
+  chcon -R u:object_r:system_file:s0 /odm
+  
+  if [ "$(dirname $AP)" == "$VEN/etc/audio" ]; then INC="s|.*=\"(/.*/[a-zA-Z0-9_]*.xml)\".*|\1|g"; else INC="s|.*=\"([a-zA-Z0-9_]*.xml)\".*|$(dirname $AP)/\1|g"; fi
 
   for POL in $AP $(grep "include href=" $AP | sed -r $INC); do
-    [ -f "$POL" -a ! -e "$ROOT/odm/etc/$(basename $POL)" ] && ln -sf $POL $ROOT/odm/etc/
+    [ -f "$POL" -a ! -e "/odm/etc/$(basename $POL)" ] && ln -sf $POL /odm/etc/
   done
 
-fi
+ fi
 
 if [ "$ROOT" ]; then mount -o ro,remount $ROOT; else mount -o ro,remount /; fi

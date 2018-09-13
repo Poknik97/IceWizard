@@ -66,6 +66,7 @@ in.krosbits.musicolet
 com.simplecity.amp_pro
 com.asus.music
 com.amazon.mp3
+code.name.monkey.retromusic
 )
 XML=/data/system/packages.xml
 

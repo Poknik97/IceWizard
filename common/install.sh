@@ -54,6 +54,9 @@ chooseconfigold() {
   fi
 }
 
+log_print " Decompressing files..."
+tar -xf $INSTALLER/custom.tar.xz -C $INSTALLER 2>/dev/null
+
 # Tell user aml is needed if applicable
 if $MAGISK && ! $SYSOVERRIDE; then
   if $BOOTMODE; then LOC="/sbin/.core/img/*/system $MOUNTPATH/*/system"; else LOC="$MOUNTPATH/*/system"; fi
@@ -84,7 +87,7 @@ KEYCHECK=$INSTALLER/common/keycheck
 chmod 755 $KEYCHECK
 
 ui_print " "
-ui_print "   Removing remnants from past Ice installs..."
+log_print "   Removing remnants from past Ice installs..."
 # Uninstall existing Ice installs
 ICEAPPS=$(find /data/app -type d -name "*dk.icepower.icesound*" -o -name "*com.asus.maxxaudio*" -o -name "*com.asus.music*")
 if [ "$ICEAPPS" ]; then
@@ -129,71 +132,78 @@ if [ "$CONF1" == false -a "$CONF2" == false -a "$CONF3" == false -a "$CONF4" == 
   if ! $PURE && ! $FULL; then
     if [ $API -ge 26 ] && [ ! "$OP3OOS" ]; then
       ui_print " "
-      ui_print "   PureIcesound compatible device "
+      log_print "   PureIcesound compatible device "
       PURE=true
     else
       ui_print " "
-      ui_print "   Fully compatible device "
-      ui_print "   Choose which version of IceSound you want installed:"
-      ui_print "   PureIceSound, or IceWizard"
-      ui_print " "
-      ui_print "   Vol+ = PureICE  Vol- = IceWizard"
+      log_print "   Fully compatible device "
+      log_print "   Choose which version of IceSound you want installed:"
+      log_print "   PureIceSound, or IceWizard"
+      log_print " "
+      log_print "   Vol+ = PureICE  Vol- = IceWizard"
       if $FUNCTION; then
-        PURE=true
+        PURE=true >> INSTLOG 2>&1
       else
-        FULL=true
+        FULL=true >> INSTLOG 2>&1
       fi
     fi
   else
-    ui_print "   Version specified in zipname!"
+    log_print "   Version specified in zipname!"
   fi
 
   if ! $CONF1 && ! $CONF2 && ! $CONF3 && ! $CONF4 && ! $CONF0; then
     ui_print " "
-    ui_print "   Choose which config you want installed:"
-    ui_print "   Processing may either occur or not occur"
-    ui_print "   depending which config is used."
-    ui_print " "
-    ui_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
+    log_print "   Choose which config you want installed:"
+    log_print "   Processing may either occur or not occur"
+    log_print "   depending which config is used."
+    log_print " "
+    log_print "   Vol+ = Config 1  Vol- = Config 2, 3 or 4"
     if $FUNCTION; then
-      CONF1=true
+      CONF1=true >> INSTLOG 2>&1
     else
       ui_print " "
-      ui_print "   Choose which config you want installed:"
-      ui_print "   Vol+ = Config 2 Vol- = Config 3 or 4"
+      log_print "   Choose which config you want installed:"
+      log_print "   Vol+ = Config 2 Vol- = Config 3 or 4"
       if $FUNCTION; then
-        CONF2=true
+        CONF2=true >> INSTLOG 2>&1
       else
         ui_print " "
-        ui_print "   Choose which config you want installed:"
-        ui_print "   Vol+ = Config 3 Vol- = Config 4 or No Config"
+        log_print "   Choose which config you want installed:"
+        log_print "   Vol+ = Config 3 Vol- = Config 4 or No Config"
         if $FUNCTION; then
-          CONF3=true
+          CONF3=true >> INSTLOG 2>&1
         else
           ui_print " "
-          ui_print "   Choose which config you want installed:"
-          ui_print "   Vol+ = Config 4 Vol- = No Config"
+          log_print "   Choose which config you want installed:"
+          log_print "   Vol+ = Config 4 Vol- = No Config"
           if $FUNCTION; then
-            CONF4=true
+            CONF4=true >> INSTLOG 2>&1
           else
-            CONF0=true
+            CONF0=true >> INSTLOG 2>&1
           fi
         fi
       fi
     fi
   else
-    ui_print "   Config specified in zipname!"
+    log_print "   Config specified in zipname!"
   fi
 else
-  ui_print "   Version and config specified in zipname!"
+  log_print "   Version and config specified in zipname!"
 fi
-# Prep terminal script
-sed -i -e "s|<MAGISK>|$MAGISK|" -e "s|<PROP>|$PROP|" -e "s|<MODPROP>|$MOD_VER|" -e "s|<ROOT>|$ROOT|" $INSTALLER/system/xbin/icewizard
+
+## Debug Stuff
+log_start
+log_print "- Installing Logging Scripts/Prepping Terminal Script "
+mkdir -p $UNITY$BINPATH
+cp_ch -n $INSTALLER/custom/icewizard.sh $UNITY$BINPATH/icewizard
+log_handler "Using $BINPATH."
+sed -i -e "s|<MAGISK>|$MAGISK|" -e "s|<CACHELOC>|$CACHELOC|" -e "s|<BINPATH>|$BINPATH|" -e "s|<MODVERSION>|$(grep_prop versionCode $INSTALLER/module.prop)|" -e "s|<MODID>|$MODID|" $UNITY$BINPATH/icewizard
 if $MAGISK; then
-  sed -i -e "s|$MOUNTPATH|/sbin/.core/img|g" -e "s|<MODPATH>|/sbin/.core/img/IceWizard|" $INSTALLER/system/xbin/icewizard
+sed -i -e "s|<PROP>|$(echo $PROP | sed "s|$MODPATH|/sbin/.core/img/$MODID|")|" -e "s|<MODPROP>|$(echo $MOD_VER | sed "s|$MOUNTPATH|/sbin/.core/img|")|" $UNITY$BINPATH/icewizard
 else
-  sed -i "s|<MODPATH>|\"\"|" $INSTALLER/system/xbin/icewizard
+  sed -i -e "s|<PROP>|$PROP|" -e "s|<MODPROP>|$MOD_VER|" -e "s|<MODPATH>|\"\"|" $UNITY$BINPATH/icewizard
 fi
+patch_script $UNITY$BINPATH/icewizard
 
 ui_print " "
 ui_print "   Installing Custom Presets (Thanks Arise Team!!!)"
@@ -204,27 +214,27 @@ ui_print "    will be Killed to Apply Preset/Config"
 ui_print "   A Reboot is required to Apply Prop"
 cp -rf $INSTALLER/custom/IceWizard $SDCARD
 if [ $SDCARD/IceWizard ]; then
-  ui_print "   All Custom Presets and Confgs Have Been"
-  ui_print "    Successfully Copied to $SDCARD"
+  log_print "   All Custom Presets and Confgs Have Been"
+  log_print "    Successfully Copied to $SDCARD"
 fi
 
 if $CONF1; then
-  ui_print " - Config1 selected."
+  log_print " - Config1 selected."
   sed -ri "s/version=(.*)/version=\1 Config (1)/" $INSTALLER/module.prop
   sed -ri "s/Config=(.*)/Config=\1 Config = 1/" $INSTALLER/system/etc/icesoundconfig.def
 elif $CONF2; then
-  ui_print " - Config2 selected."
+  log_print " - Config2 selected."
   sed -ri "s/version=(.*)/version=\1 Config (2)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
   sed -ri "s/Config=(.*)/Config=\1 Config = 2/" $INSTALLER/system/etc/icesoundconfig.def
 elif $CONF3; then
-  ui_print " - Config3 selected."
+  log_print " - Config3 selected."
   sed -ri "s/version=(.*)/version=\1 Config (3)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/fasttrack true/fasttrack false/" $INSTALLER/system/etc/icesoundconfig.def
-   sed -ri "s/Config=(.*)/Config=\1 Config = 3/" $INSTALLER/system/etc/icesoundconfig.def
+  sed -ri "s/Config=(.*)/Config=\1 Config = 3/" $INSTALLER/system/etc/icesoundconfig.def
 elif $CONF4; then
-  ui_print " - Config4 selected."
+  log_print " - Config4 selected."
   sed -ri "s/version=(.*)/version=\1 Config (4)/" $INSTALLER/module.prop
   sed -i "s/session0 false/session0 true/" $INSTALLER/system/etc/icesoundconfig.def
   sed -i "s/a2dpfasttrackoutputs 4/a2dpfasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
@@ -232,13 +242,13 @@ elif $CONF4; then
   sed -i "s/usbaudiofasttrackoutputs 4/usbaudiofasttrackoutputs 8/" $INSTALLER/system/etc/icesoundconfig.def
  sed -ri "s/Config=(.*)/Config=\1 Config = 4/" $INSTALLER/system/etc/icesoundconfig.def
 elif $CONF0; then
-  ui_print " - No Config Selected."
+  log_print " - No Config Selected."
   sed -ri "s/version=(.*)/version=\1 Config (0)/" $INSTALLER/module.prop
   rm -f $INSTALLER/system/etc/icesoundconfig.def
 fi
 
 if $FULL; then
-  ui_print " - ICEWizard selected."
+  log_print " - ICEWizard selected."
   sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
   sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
   cp -rf $INSTALLER/custom/AddonApp/AudioWizard $INSTALLER/system/priv-app
@@ -247,15 +257,15 @@ if $FULL; then
 	#cp -rf $INSTALLER/custom/AddonApp/AudioWizardView $INSTALLER/system/priv-app
   cp -rf $INSTALLER/custom/AddonApp/permissions $INSTALLER/system/etc
   if [ $API -ge 26 ]; then
-    ui_print "  Full ICEWizard compatible device detected!"
-    ui_print "   Installing addon content!"
+    log_print "  Full Oreo+ ICEWizard compatible device detected!"
+    log_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     cp -rf $INSTALLER/custom/Addon/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   elif [ $API -eq 23 ]; then
-    ui_print "  Full ICEWizard compatible device detected!"
-    ui_print "   Installing addon content!"
+    log_print "  Full MarshMellow ICEWizard compatible device detected!"
+    log_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     rm -rf $INSTALLER/system/lib/soundfx/libicepower.so
@@ -264,19 +274,19 @@ if $FULL; then
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   elif [ $API -le 25 ]; then
-    ui_print "  Full ICEWizard compatible device detected!"
-    ui_print "   Installing addon content!"
+    log_print "  Full Nougat ICEWizard compatible device detected!"
+    log_print "   Installing addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/version=(.*)/version=\1 Lib (NOUGAT)/"
     mkdir $INSTALLER/system/app
     cp -rf $INSTALLER/custom/AddonN/system $INSTALLER
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
-		ui_print "   IF AUDIOWIZARD DOES NOT PROCESS/CHANGE AUDIO WHEN CHANGING PRESETS IN THE
+		log_print "   IF AUDIOWIZARD DOES NOT PROCESS/CHANGE AUDIO WHEN CHANGING PRESETS IN THE
 		AUDIOWIZARD APP, PLEASE RUN su icewizard IN TERMINAL AND CHOOSE ICESOUND LIBS AND SWITCH TO THE NOUGAT LIB"
 	fi
   if [ "$ABI" == "x86" ] || [ "$ABILONG" == "x86_64" ]; then
-    ui_print "  x86 device detected!"
-    ui_print "   Installing x86 addon content!"
+    log_print "  x86 device detected!"
+    log_print "   Installing x86 addon content!"
     sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
 		sed -ri "s/name=(.*)/name=\1 (ICEWizard)/" $INSTALLER/module.prop
     cp -rf $INSTALLER/custom/WizardX86/app $INSTALLER/system
@@ -284,15 +294,15 @@ if $FULL; then
     sed -i "s/icesound_no_aw true/icesound_no_aw false/" $INSTALLER/system/etc/icesoundconfig.def
   fi
 else
-  ui_print " - PureICE selected."
+  log_print " - PureICE selected."
   sed -ri "s/version=(.*)/version=\1 Preset (STOCK)/" $INSTALLER/module.prop
   sed -ri "s/name=(.*)/name=\1 (PUREICE)/" $INSTALLER/module.prop
 fi
 
-ui_print "   Patching existing audio_effects files..."
+log_print "   Patching existing audio_effects files..."
 for OFILE in ${CFGS}; do
   FILE="$UNITY$(echo $OFILE | sed "s|^/vendor|/system/vendor|g")"
-  cp_ch_nb $ORIGDIR$OFILE $FILE 0644 false
+  cp_ch -nn $ORIGDIR$OFILE $FILE
   osp_detect $FILE
   case $FILE in
     *.conf) sed -i "/icepower {/,/}/d" $FILE
@@ -324,7 +334,8 @@ for OFILE in ${CFGS}; do
     esac
 done
 
-ui_print " " 
-ui_print "THANKS FOR USING ICESOUND AND THE SUPPORT"
-ui_print "   ENJOY AWESOME SOUND"
-ui_print " "
+log_print " " 
+log_print " THANKS FOR USING ICESOUND AND THE SUPPORT"
+log_print " ENJOY AWESOME SOUND"
+log_print " INSTALL SUCCESSFUL"
+log_print " "

@@ -19,8 +19,16 @@
  - [Unity](https://github.com/Zackptg5/Unity)
  - [Terminal-Debloater](https://github.com/Magisk-Modules-Repo/terminal_debloater_magisk) by [veez21](https://forum.xda-developers.com/member.php?u=7296895)
  - I used the debloater terminal script as a template for my terminal script. credit to @veez21
+ - [MagiskHide Props Config](https://forum.xda-developers.com/apps/magisk/module-magiskhide-props-config-t3789228)
+ by [Didgeridoohan](https://forum.xda-developers.com/member.php?u=4667597)
+ - I borrowed and modified (with permission) the logging code from MagiskHide Props Config and used it in both config,sh and icewizard terminal script. credit to @Didgeridoohan
 
 ## Changelog
+v8.2
+ - Update to Unity 1.7.1
+ - ReWrote Terminal Script
+ - Added Logging Engine
+ - Fixed misc typos/bugs
 
 v8.1
  - Fix nougat Audiowizard crashing

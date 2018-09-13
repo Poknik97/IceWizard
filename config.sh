@@ -40,15 +40,23 @@ LATESTARTSERVICE=true
 # Uncomment DYNAMICOREO if you want libs installed to vendor for oreo and newer and system for anything older
 # Uncomment DYNAMICAPP if you want anything in $INSTALLER/system/app to be installed to the optimal app directory (/system/priv-app if it exists, /system/app otherwise)
 # Uncomment SYSOVERRIDE if you want the mod to always be installed to system (even on magisk)
+# Uncomment RAMDISK if you have ramdisk modifications. If you only want ramdisk patching as part of a conditional, just keep this commented out and set RAMDISK=true in that conditional.
+# Uncomment DEBUG if you want full debug logs (saved to SDCARD if in twrp, part of regular log if in magisk manager (user will need to save log after flashing)
 #MINAPI=21
 #MAXAPI=25
 #SYSOVERRIDE=true
 #DYNAMICOREO=true
 #DYNAMICAPP=true
+#RAMDISK=true
+DEBUG=true
 
 # Custom Variables - Keep everything within this function
 unity_custom() {
   if [ -f $VEN/build.prop ]; then BUILDS="/system/build.prop $VEN/build.prop"; else BUILDS="/system/build.prop"; fi
+	if [ -d /cache ]; then CACHELOC=/cache; else CACHELOC=/data/cache; fi
+BIN=$SYS/bin
+XBIN=$SYS/xbin
+  if [ -d $XBIN ]; then BINPATH=$XBIN; else BINPATH=$BIN; fi
   OP3=$(grep -E "ro.build.product=OnePlus3.*|ro.build.product=oneplus3.*|ro.vendor.product.device=oneplus3.*|ro.vendor.product.device=OnePlus3.*" $BUILDS)
   OOS=$(grep "ro.build.version.ota=.*Oxygen" $BUILDS)
   [ "$OP3" -a "$OOS" ] && OP3OOS=true
@@ -60,7 +68,47 @@ unity_custom() {
     SDCARD=/data/media/0
     CFGS="$(find -L /system -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
   fi
+  MODTITLE=$(grep_prop name $INSTALLER/module.prop)
+  VER=$(grep_prop version $INSTALLER/module.prop)
+	AUTHOR=$(grep_prop author $INSTALLER/module.prop)
+	INSTLOG=$CACHELOC/IceWizard_install.log
 } 
+
+# Custom Functions for Install AND Uninstall - You can put them here
+# Log functions
+
+log_handler() {
+  echo "" >> $INSTLOG 2>&1
+  echo -e "$(date +"%m-%d-%Y %H:%M:%S") - $1" >> $INSTLOG 2>&1
+}
+
+log_start() {
+	if [ -f "$INSTLOG" ]; then
+    rm -f $INSTLOG
+  fi
+  touch $INSTLOG
+  echo " " >> $INSTLOG 2>&1
+  echo "    *********************************************" >> $INSTLOG 2>&1
+  echo "    *         ICESound Unity Audio Port         *" >> $INSTLOG 2>&1
+  echo "    *********************************************" >> $INSTLOG 2>&1
+  echo "    *                 V8.2                      *" >> $INSTLOG 2>&1
+  echo "    *********************************************" >> $INSTLOG 2>&1
+  echo "    *      Michi,  JohnFawkes,  Zackptg5        *" >> $INSTLOG 2>&1
+  echo "    *   guitardedhero,  UltraM8,  Skittles9823  *" >> $INSTLOG 2>&1
+  echo "    *               Ephexxxis                   *" >> $INSTLOG 2>&1
+  echo "    *********************************************" >> $INSTLOG 2>&1
+  echo " " >> $INSTLOG 2>&1
+  log_handler "Starting module installation script"
+}
+
+# PRINT MOD NAME
+log_start
+
+log_print() {
+  ui_print "$1"
+  log_handler "$1"
+}
+
 
 ##########################################################################################
 # Installation Message
@@ -96,7 +144,7 @@ REPLACE="
 /system/app/Youtube
 /system/priv-app/SystemUI
 /system/priv-app/Settings
-/system/framework
+/system/frameworkz
 "
 
 # Construct your own list here, it will overwrite the example
@@ -116,7 +164,7 @@ set_permissions() {
 
   # CUSTOM PERMISSIONS
   #[ -f "$UNITY/system/bin/audioserver" ] && set_perm $UNITY/system/bin/audioserver 0 2000 0755 u:object_r:audioserver_exec:s0
-  set_perm $UNITY/system/xbin/icewizard 0 2000 0755
+  set_perm $UNITY$BINPATH/icewizard 0 2000 0755
   # Some templates if you have no idea what to do:
   # Note that all files/folders have the $UNITY prefix - keep this prefix on all of your files/folders
   # Also note the lack of '/' between variables - preceding slashes are already included in the variables
