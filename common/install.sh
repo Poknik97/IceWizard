@@ -199,7 +199,7 @@ cp_ch -n $INSTALLER/custom/icewizard.sh $UNITY$BINPATH/icewizard
 log_handler "Using $BINPATH."
 sed -i -e "s|<MAGISK>|$MAGISK|" -e "s|<CACHELOC>|$CACHELOC|" -e "s|<BINPATH>|$BINPATH|" -e "s|<MODVERSION>|$(grep_prop versionCode $INSTALLER/module.prop)|" -e "s|<MODID>|$MODID|" $UNITY$BINPATH/icewizard
 if $MAGISK; then
-sed -i -e "s|<PROP>|$(echo $PROP | sed "s|$MODPATH|/sbin/.core/img/$MODID|")|" -e "s|<MODPROP>|$(echo $MOD_VER | sed "s|$MOUNTPATH|/sbin/.core/img|")|" $UNITY$BINPATH/icewizard
+sed -i -e "s|<PROP>|$(echo $PROP)|" -e "s|<MODPATH>|/sbin/.core/img/IceWizard|" -e "s|<MODPROP>|$(echo $MOD_VER)|" -e "s|<MOUNTPATH>|/sbin/.core/img|" $UNITY$BINPATH/icewizard
 else
   sed -i -e "s|<PROP>|$PROP|" -e "s|<MODPROP>|$MOD_VER|" -e "s|<MODPATH>|\"\"|" $UNITY$BINPATH/icewizard
 fi
